@@ -1,0 +1,64 @@
+@page "/Identity/Registration"
+
+@attribute [AllowAnonymous]
+
+@inject NavigationManager NavigationManager
+
+@layout EmptyLayout
+
+<PageTitle>Sign up</PageTitle>
+
+<div class="w-full h-screen flex flex justify-center items-center">
+    <div class="bg-skin-fill backdrop-blur-xl px-6 py-12 rounded-xl md:shadow-[0_5px_75px_-5px_rgba(255,255,255,.2)] w-full md:max-w-md h-screen md:h-auto flex flex-col justify-center">
+        <h1 class="text-2xl font-bold relative before:absolute before:-top-10 before:left-5 before:w-32 before:h-32 before:bg-white/20 before:rounded-full before:blur-2xl before:-z-30">Sign up</h1>
+        <EditForm class="flex flex-col py-4 gap-8 w-full mt-8" Model="ViewModel" method="post" OnValidSubmit="RegisterUser" FormName="register">
+            <DataAnnotationsValidator/>
+            <ValidationSummary/>
+            <div class="flex flex-col gap-2">
+                <label class="font-bold inline-block" for="email">Email</label>
+                <InputText @bind-Value="ViewModel.Email" class="bg-transparent focus:outline-none border border-solid border-[#454a61] rounded-lg px-4 py-2" id="email" autocomplete="off"/>
+            </div>
+            <div class="flex flex-col gap-2">
+                <label class="font-bold inline-block w-52" for="passwd">Password</label>
+                <InputText @bind-Value="ViewModel.Password" type="password" class="bg-transparent focus:outline-none border border-solid border-[#454a61] rounded-lg px-4 py-2" id="passwd"/>
+            </div>
+            <div class="flex flex-col gap-2">
+                <label class="font-bold inline-block w-52" for="repasswd">Repeat password</label>
+                <InputText @bind-Value="ViewModel.RepeatedPassword" type="password" class="bg-transparent focus:outline-none border border-solid border-[#454a61] rounded-lg px-4 py-2" id="repasswd"/>
+            </div>
+            <button type="submit" class="mt-4 py-2 rounded-xl bg-skin-accent hover:bg-skin-button_accent_hover relative before:absolute before:-top-10 before:right-0 before:w-32 before:h-32 before:bg-skin-accent_alpha before:rounded-full before:blur-2xl before:-z-30">
+                Create an account
+            </button>
+        </EditForm>
+        <div class="error-message text-red-500 my-2">@_err</div>
+        <div class="mt-4 flex gap-2 justify-center">
+            <p>Already have an account?</p>
+            <a href="/Identity/Login" class="underline hover:no-underline text-skin-accent">Sign in</a>
+        </div>
+    </div>
+</div>
+
+@code {
+
+    [SupplyParameterFromForm] private RegisterViewModel ViewModel { get; set; } = default!;
+
+    string _err = "";
+
+    protected override void OnInitialized() => ViewModel ??= new();
+
+    private async Task RegisterUser()
+    {
+        _err = string.Empty;
+        // var result = await IdentityService.RegisterUser(ViewModel);
+        //
+        // if (result)
+        // {
+        //     NavigationManager.NavigateTo("/Identity/Login");
+        // }
+        // else
+        // {
+        //     _err = "Error creating account";
+        // }
+    }
+
+}

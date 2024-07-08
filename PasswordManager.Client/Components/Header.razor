@@ -1,0 +1,145 @@
+@inject AddComponentState<AddLogin> LoginComponentState
+@inject AddComponentState<AddPassword> PasswordComponentState
+
+@implements IDisposable 
+ 
+<header
+    class="flex h-14 inset-x-0 text-white items-center gap-4 px-4 z-20 py-2">
+    <button
+        @onclick="Action" 
+        id="openButton"
+        class="w-10 h-9 flex lg:hidden justify-center items-center rounded-md transition-all hover:bg-white hover:bg-opacity-10 duration-150">
+        <div class="flex flex-col justify-center gap-1">
+            <div class="flex justify-center">
+                <span class="block w-1 h-[3px] bg-white rounded-l-md"></span>
+                <span class="block w-1 h-[3px] bg-transparent"></span>
+                <span class="block w-5 h-[3px] bg-white rounded-r-md"></span>
+            </div>
+            <div class="flex justify-center">
+                <span class="block w-5 h-[3px] bg-white rounded-md"></span>
+            </div>
+            <div class="flex justify-end">
+                <span class="block w-1 h-[3px] bg-white rounded-l-md"></span>
+                <span class="block w-1 h-[3px] bg-transparent"></span>
+                <span class="block w-[10px] h-[3px] bg-white rounded-r-md"></span>
+            </div>
+        </div>
+    </button>
+    <div
+        class="flex border bg-[#101010] focus-within:bg-black border-[#595960] hover:border-[#2B2B38] group focus-within:border-[#7878B3] focus-within:hover:border-[#7878B3] focus-within:ring-2 ring-[#302D45] rounded-lg relative flex-1 px-4">
+        <svg
+            class="w-5 h-auto fill-[#595960]"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 512 512">
+            <path
+                d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z">
+            </path>
+        </svg>
+        <input
+            type="search"
+            autocomplete="off"
+            placeholder="Search in vaults..."
+            class="flex-1 bg-transparent focus:outline-none text-white appearance-none px-4 py-2"
+            id="mainSearchInput"/>
+    </div>
+
+    <button
+        @onclick="ToggleModalAsync"
+        class="bg-skin-accent hover:bg-skin-button_accent_hover p-2.5 rounded-full flex justify-center items-center">
+        <svg
+            class="w-5 h-auto"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 256 256">
+            <rect height="256" width="256" fill="none"></rect>
+            <line
+                x1="40"
+                y1="128"
+                x2="216"
+                y2="128"
+                fill="none"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="16">
+            </line>
+            <line
+                x1="128"
+                y1="40"
+                x2="128"
+                y2="216"
+                fill="none"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="16">
+            </line>
+        </svg>
+    </button>
+</header>
+
+<div class="z-40 fixed inset-0 @(_isVisibleModal ? "block" : "hidden")"
+     @onclick="ToggleModalAsync">
+    <div class="absolute top-0 mt-14 right-0 mr-2 z-20">
+        <ul class="flex flex-col py-1 text-sm shadow-lg rounded-lg border border-skin-base bg-skin-fill_secondary">
+            <li>
+                <button
+                    @onclick="() => LoginComponentState.SetComponentOpen(true)"
+                    class="flex gap-2 items-center pl-4 pr-6 py-1 hover:bg-skin-button_muted_hover w-full">
+                    <svg class="text-skin-login w-8 aspect-square p-2 rounded-xl bg-skin-accent_alpha" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+                        <rect width="256" height="256" fill="none"/><circle cx="128" cy="96" r="64" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><path d="M32,216c19.37-33.47,54.55-56,96-56s76.63,22.53,96,56" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/>
+                    </svg>
+                    <span>Login</span>
+                </button>
+            </li>
+            <li>
+                <button
+                    @onclick="() => PasswordComponentState.SetComponentOpen(true)"
+                    class="flex gap-2 items-center pl-4 pr-6 py-1 hover:bg-skin-button_muted_hover w-full">
+                    <svg class="text-skin-password w-8 aspect-square p-2 rounded-xl bg-red-400/25" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+                        <rect width="256" height="256" fill="none"/><path d="M93.17,122.83a72,72,0,1,1,40,40h0L120,176H96v24H72v24H32V184l61.17-61.17Z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><circle cx="180" cy="76" r="12"/>
+                    </svg>
+                    <span>Password</span>
+                </button>
+            </li>
+            <li>
+                <button
+                    @* @onclick="() => GroupComponentState.SetComponentOpen(true)" *@
+                    class="flex gap-2 items-center pl-4 pr-6 py-1 hover:bg-skin-button_muted_hover w-full">
+                    <svg class="text-skin-group w-8 aspect-square p-2 rounded-xl bg-skin-group_alpha" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+                        <rect width="256" height="256" fill="none"/><circle cx="84" cy="108" r="52" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><path d="M10.23,200a88,88,0,0,1,147.54,0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><path d="M172,160a87.93,87.93,0,0,1,73.77,40" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><path d="M152.69,59.7A52,52,0,1,1,172,160" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/>
+                    </svg>
+                    <span>Group</span>
+                </button>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<AddLogin />
+<AddPassword/>
+@* <AddGroup/> *@
+
+@code {
+    [Parameter] public EventCallback Action { get; set; }
+    
+    private bool _isVisibleModal = false;
+
+    private void ToggleModalAsync()
+    {
+        _isVisibleModal = !_isVisibleModal;
+    }
+    
+    protected override void OnInitialized()
+    {
+        // GroupComponentState.OnChange += StateHasChanged;
+        PasswordComponentState.OnChange += StateHasChanged;
+        LoginComponentState.OnChange += StateHasChanged;
+    }
+    
+    public void Dispose()
+    {
+        // GroupComponentState.OnChange -= StateHasChanged;
+        PasswordComponentState.OnChange -= StateHasChanged;
+        LoginComponentState.OnChange -= StateHasChanged;
+    }
+}

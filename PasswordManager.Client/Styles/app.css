@@ -1,0 +1,90 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+    font-family: "Quicksand";
+    src: url("/fonts/Quicksand/Quicksand-VariableFont_wght.ttf");
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    min-width: 0;
+}
+
+input:focus {
+    outline: none;
+}
+
+@layer base {
+    :root {
+        --color-accent: #fd5531;
+        --color-accent-alpha: rgba(253, 85, 49, .25);
+        --color-accent-muted: #502E27;
+        --color-text-base: #FEFEFE;
+        --color-text-muted: #6B7280;
+
+        --color-base: #1a1a21;
+        --color-base2: #1a1a21;
+        --color-muted: #f8f8f6;
+        --color-inverted: #212428;
+        --color-fill: #101010;
+        --color-fill-secondary: #181818;
+        --color-button-accent-hover: #ff5c39;
+        --color-button-muted: #252525;
+        --color-button-muted-hover: #313131;
+
+        --color-border: #2d3147;
+
+        --color-login: var(--color-accent);
+        --color-login-alpha: var(--color-accent-alpha);
+        --color-login-muted: var(--color-accent-muted);
+        --color-password: #F87171;
+        --color-password-alpha: rgba(90, 56, 56, .25);
+        --color-password-muted: #4F3434;
+        --color-group: #FFD5A1;
+        --color-group-alpha: rgba(255, 213, 161, .25);
+        --color-group-muted: #4C473D;
+    }
+}
+
+.range::-webkit-slider-runnable-track {
+    background: linear-gradient(to right, var(--color-password), var(--color-password)), var(--color-password-muted);
+    background-size: var(--background-size, 0%) 100%;
+    background-repeat: no-repeat;
+    height: 4px;
+    border-radius: 9999px;
+}
+
+.range::-moz-range-progress {
+    border-radius: 9999px;
+    height: 100%;
+    background: var(--color-password);
+}
+
+.range::-ms-track {
+    border-radius: 9999px;
+    height: 100%;
+    background: var(--color-password);
+}
+
+.range::-moz-range-thumb {
+    width: 1rem;
+    height: 1rem;
+    border-radius: 9999px;
+    background-color: white;
+    border: none;
+}
+
+.range::-webkit-slider-thumb {
+    width: 1rem;
+    height: 1rem;
+    border: none;
+    border-radius: 9999px;
+    margin-top: -6px;
+}
+
+.input {
+    @apply w-full max-w-sm bg-transparent focus:outline-none border border-solid border-[#454a61] rounded-lg px-4 py-2 text-sm;
+}

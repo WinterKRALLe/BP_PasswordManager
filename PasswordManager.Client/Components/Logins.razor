@@ -1,0 +1,42 @@
+<ul class="divide-y divide-transparent h-full w-full">
+    @foreach (var item in _loginItems)
+    {
+        <li>
+            <a
+                class="hover:bg-skin-button_muted hover:shadow-[0_5px_10px_-2px_rgba(0,0,0,0.3)] focus:bg-skin-button_muted_hover flex justify-between py-3 px-4 text-[#FFFFFF]"
+                href="#">
+                <div class="flex gap-3 items-center">
+                    @* <div class="bg-slate-300 w-10 aspect-square rounded-xl flex justify-center items-center" id="parentContainer"> *@
+                    @*     <img src=`/${l.web}.ico` class="w-5 aspect-square imageToLoad"/> *@
+                    @* </div> *@
+                    <div>
+                        <p class="">@item.Web</p>
+                        <p class="text-gray-300 text-sm">@item.LoginName</p>
+                    </div>
+                </div>
+            </a>
+        </li>
+    }
+</ul>
+
+
+@code {
+
+    private class LoginItem
+    {
+        public string Web = string.Empty;
+        public string LoginName = string.Empty;
+        public bool IsSelected;
+    }
+
+    private readonly LoginItem[] _loginItems =
+    {
+        new() { Web = "spotify.com", LoginName = "a.kemal@gmail.com" },
+        new() { Web = "gmail.com", LoginName = "Ali Kemal" },
+        new() { Web = "x.com", LoginName = "akemal" },
+        new() { Web = "spotify.com", LoginName = "a.kemal@gmail.com" },
+        new() { Web = "gmail.com", LoginName = "Ali Kemal" },
+        new() { Web = "x.com", LoginName = "akemal" },
+    };
+
+}

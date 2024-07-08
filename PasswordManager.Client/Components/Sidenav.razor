@@ -1,0 +1,168 @@
+@inject AuthenticationStateProvider AuthStateProvider
+@inject UserState userState
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+
+@using System.Security.Claims
+@implements IDisposable
+
+<div class="lg:w-auto min-w-80 bg-skin-fill fixed inset-y-0 lg:relative duration-500 @(ShowSidenav ? "translate-x-0" : "-translate-x-full") lg:translate-x-0 left-0 transition-all flex flex-col text-[#8b93a1] py-4 z-40 before:absolute before:bottom-0 before:left-0 before:inline-block before:w-5 before:h-5 before:border-t-4 before:border-r-4 before:rounded-tr-full before:border-[#FE683C] before:m-0.5 after:absolute after:top-0 after:right-0 after:inline-block after:w-5 after:h-5 after:border-b-4 after:border-l-4 after:rounded-bl-full after:border-[#FD5531]">
+    <button
+        @onclick="Action"
+        class="p-1 absolute top-2 right-2 text-skin-accent bg-white/10 rounded-lg lg:hidden">
+        <svg class="p-0.5 w-5 aspect-square" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+            <rect width="256" height="256" fill="none"/><line x1="200" y1="56" x2="56" y2="200" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><line x1="200" y1="200" x2="56" y2="56" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/>
+        </svg>
+    </button>
+    <a href="/" class="flex justify-center gap-2 items-center mt-2 mb-6">
+        <div class="w-16 h-auto">
+            <img src="./images/SwiftVaultLogo.svg" alt="logo"/>
+        </div>
+        <span class="text-white font-bold text-2xl font-quicksand tracking-wide">
+            Swift Vault
+        </span>
+    </a>
+
+    <ul class="flex flex-col grow gap-0.5 *:rounded-xl font-bold">
+
+        @foreach (var item in _menuItems)
+        {
+            <li
+                class="@(_currentPath == item.Link ? "after:h-full after:w-1 after:bg-[#fd5531] after:absolute after:left-0 bg-gradient-to-r from-transparent via-20% via-[rgba(253,85,49,.2)] to-transparent text-[#FD5531]" : "") hover:after:h-full hover:after:w-1 hover:after:bg-[#fd5531] hover:after:absolute hover:after:left-0 relative flex justify-between items-center pr-2">
+                <a href="@item.Link" @onclick="@(Action)" class="block w-full h-full py-3 ml-16">
+                    <span class="flex gap-3">
+                        @item.Svg
+                        @item.Text
+                    </span>
+                </a>
+            </li>
+        }
+    </ul>
+    <div class="flex justify-center items-center relative">
+        <p class="py-4 text-sm text-gray-200">
+            @username
+        </p>
+        <button
+            @onclick="OpenAccountSettings"
+            class="hover:bg-white/10 rounded-xl absolute p-2 right-0 mr-3">
+            <svg
+                class="w-6 h-auto"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 256 256">
+                <rect width="256" height="256" fill="none"></rect>
+                <circle
+                    cx="128"
+                    cy="128"
+                    r="40"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="16">
+                </circle>
+                <path
+                    d="M41.43,178.09A99.14,99.14,0,0,1,31.36,153.8l16.78-21a81.59,81.59,0,0,1,0-9.64l-16.77-21a99.43,99.43,0,0,1,10.05-24.3l26.71-3a81,81,0,0,1,6.81-6.81l3-26.7A99.14,99.14,0,0,1,102.2,31.36l21,16.78a81.59,81.59,0,0,1,9.64,0l21-16.77a99.43,99.43,0,0,1,24.3,10.05l3,26.71a81,81,0,0,1,6.81,6.81l26.7,3a99.14,99.14,0,0,1,10.07,24.29l-16.78,21a81.59,81.59,0,0,1,0,9.64l16.77,21a99.43,99.43,0,0,1-10,24.3l-26.71,3a81,81,0,0,1-6.81,6.81l-3,26.7a99.14,99.14,0,0,1-24.29,10.07l-21-16.78a81.59,81.59,0,0,1-9.64,0l-21,16.77a99.43,99.43,0,0,1-24.3-10l-3-26.71a81,81,0,0,1-6.81-6.81Z"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="16">
+                </path>
+            </svg>
+        </button>
+    </div>
+
+    <div class="@(_openAccountSettings ? "block" : "hidden") accountSettings *:hover:cursor-pointer bg-skin-fill_secondary py-2 *:px-3 *:py-2 *:flex *:gap-3 *:items-center rounded-xl bottom-16 -right-2 flex flex-col absolute border border-skin-base text-sm">
+        <a class="hover:bg-skin-button_muted_hover">
+            <svg class="w-4 h-auto" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+                <rect width="256" height="256" fill="none"/><circle cx="128" cy="96" r="64" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><path d="M32,216c19.37-33.47,54.55-56,96-56s76.63,22.53,96,56" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/>
+            </svg>
+            <span>Account</span>
+        </a>
+        <button
+            @onclick="LogoutAsync"
+            class="flex gap-2 hover:bg-skin-button_muted_hover">
+            <svg class="w-4 h-auto" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+                <rect width="256" height="256" fill="none"/><polyline points="112 40 48 40 48 216 112 216" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><line x1="112" y1="128" x2="224" y2="128" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><polyline points="184 88 224 128 184 168" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/>
+            </svg>
+            <span>Sign Out</span>
+        </button>
+    </div>
+</div>
+
+@code {
+    [CascadingParameter(Name = "CurrentUser")]
+    private ClaimsPrincipal CurrentUser { get; set; }
+
+    private string username = "Loading...";
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (CurrentUser == null || CurrentUser.Identity == null || !CurrentUser.Identity.IsAuthenticated)
+        {
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            CurrentUser = authState.User;
+        }
+
+        username = CurrentUser?.Identity?.Name ?? "Guest";
+    }
+
+    [Parameter] public bool ShowSidenav { get; set; }
+    [Parameter] public EventCallback Action { get; set; }
+
+    async Task LogoutAsync()
+    {
+        var authStateProvider = (JwtAuthenticationStateProvider)AuthStateProvider;
+        await authStateProvider.LogoutAsync();
+        NavigationManager.NavigateTo("/Identity/Login");
+    }
+
+    bool _openAccountSettings = false;
+
+    void OpenAccountSettings()
+    {
+        _openAccountSettings = !_openAccountSettings;
+    }
+
+    private string? _currentPath;
+
+    protected override void OnInitialized()
+    {
+        UpdateCurrentPathname();
+        NavigationManager.LocationChanged += HandleLocationChanged;
+        userState.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        userState.OnChange -= StateHasChanged;
+    }
+
+    private void UpdateCurrentPathname()
+    {
+        var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+        _currentPath = "/" + uri.GetComponents(UriComponents.Path, UriFormat.Unescaped);
+    }
+
+    private void HandleLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        UpdateCurrentPathname();
+        StateHasChanged();
+    }
+
+    private class MenuItem
+    {
+        public string Text { get; set; } = string.Empty;
+        public string Link { get; set; } = string.Empty;
+        public MarkupString Svg { get; set; }
+    }
+
+    private readonly MenuItem[] _menuItems =
+    [
+        new MenuItem { Text = "All Vaults", Link = "/", Svg = new MarkupString("<svg class=\"w-5 h-auto p-0.5\" fill=\"currentColor\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 448 512\"><path d=\"M144 144v48H304V144c0-44.2-35.8-80-80-80s-80 35.8-80 80zM80 192V144C80 64.5 144.5 0 224 0s144 64.5 144 144v48h16c35.3 0 64 28.7 64 64V448c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V256c0-35.3 28.7-64 64-64H80z\"></path></svg>") },
+        new MenuItem { Text = "Personal", Link = "/personal", Svg = new MarkupString("<svg class=\"w-5 h-auto\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 512\" fill=\"currentColor\"><path d=\"M224 256A128 128 0 1 0 224 0a128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512H392.6c-5.4-9.4-8.6-20.3-8.6-32V352c0-2.1 .1-4.2 .3-6.3c-31-26-71-41.7-114.6-41.7H178.3zM528 240c17.7 0 32 14.3 32 32v48H496V272c0-17.7 14.3-32 32-32zm-80 32v48c-17.7 0-32 14.3-32 32V480c0 17.7 14.3 32 32 32H608c17.7 0 32-14.3 32-32V352c0-17.7-14.3-32-32-32V272c0-44.2-35.8-80-80-80s-80 35.8-80 80z\"></path></svg>") },
+        new MenuItem { Text = "Groups", Link = "/groups", Svg = new MarkupString("<svg class=\"w-5 h-auto\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 512\" fill=\"currentColor\"> <path d=\"M96 128a128 128 0 1 1 256 0A128 128 0 1 1 96 128zM0 482.3C0 383.8 79.8 304 178.3 304h91.4C368.2 304 448 383.8 448 482.3c0 16.4-13.3 29.7-29.7 29.7H29.7C13.3 512 0 498.7 0 482.3zM609.3 512H471.4c5.4-9.4 8.6-20.3 8.6-32v-8c0-60.7-27.1-115.2-69.8-151.8c2.4-.1 4.7-.2 7.1-.2h61.4C567.8 320 640 392.2 640 481.3c0 17-13.8 30.7-30.7 30.7zM432 256c-31 0-59-12.6-79.3-32.9C372.4 196.5 384 163.6 384 128c0-26.8-6.6-52.1-18.3-74.3C384.3 40.1 407.2 32 432 32c61.9 0 112 50.1 112 112s-50.1 112-112 112z\"></path></svg>") },
+        new MenuItem { Text = "Thrash", Link = "/trash", Svg = new MarkupString("<svg class=\"w-5 h-auto\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 16 16\"><path fill=\"currentColor\" fill-rule=\"evenodd\" d=\"M9 2H7a.5.5 0 0 0-.5.5V3h3v-.5A.5.5 0 0 0 9 2m2 1v-.5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2V3H2.251a.75.75 0 0 0 0 1.5h.312l.317 7.625A3 3 0 0 0 5.878 15h4.245a3 3 0 0 0 2.997-2.875l.318-7.625h.312a.75.75 0 0 0 0-1.5zm.936 1.5H4.064l.315 7.562A1.5 1.5 0 0 0 5.878 13.5h4.245a1.5 1.5 0 0 0 1.498-1.438zm-6.186 2v5a.75.75 0 0 0 1.5 0v-5a.75.75 0 0 0-1.5 0m3.75-.75a.75.75 0 0 1 .75.75v5a.75.75 0 0 1-1.5 0v-5a.75.75 0 0 1 .75-.75\" clip-rule=\"evenodd\"></path></svg>") }
+    ];
+
+}

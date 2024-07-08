@@ -1,0 +1,80 @@
+@page "/groups"
+
+@* @inject IGroupService GroupService *@
+
+<div class="divide-y divide-transparent overflow-y-auto w-full">
+    @* @foreach (var item in _groups) *@
+    @* { *@
+        <button
+            @* @onclick="() => OpenSelectedGroup(item)" *@
+            class="hover:bg-skin-button_muted hover:shadow-[0_5px_10px_-2px_rgba(0,0,0,0.3)] cursor-pointer focus:bg-skin-button_muted_hover w-full flex justify-between py-3 px-4 text-[#FFFFFF]">
+            <div class="flex gap-3 items-center">
+                <div class="bg-slate-300 w-10 aspect-square rounded-xl flex justify-center items-center" id="parentContainer">
+                    <img src="favicon.png" class="w-5 aspect-square" alt=""/>
+                </div>
+                <div>
+                    @* <p class="font-bold">@item.Title</p> *@
+                    @* <p class="text-gray-500 text-xs">Last change: @item.LastChange</p> *@
+                </div>
+            </div>
+            @* <div class="flex gap-10"> *@
+            @* *@
+            @*     <div class="flex items-center gap-2"> *@
+            @*         <span class="text-skin-accent"> *@
+            @*             <svg *@
+            @*                 fill="currentColor" *@
+            @*                 class="w-5 h-auto" *@
+            @*                 xmlns="http://www.w3.org/2000/svg" *@
+            @*                 viewBox="0 0 256 256"> *@
+            @*                 <path *@
+            @*                     d="M160,16A80.07,80.07,0,0,0,83.91,120.78L26.34,178.34A8,8,0,0,0,24,184v40a8,8,0,0,0,8,8H72a8,8,0,0,0,8-8V208H96a8,8,0,0,0,8-8V184h16a8,8,0,0,0,5.66-2.34l9.56-9.57A80,80,0,1,0,160,16Zm0,144a63.7,63.7,0,0,1-23.65-4.51,8,8,0,0,0-8.84,1.68L116.69,168H96a8,8,0,0,0-8,8v16H72a8,8,0,0,0-8,8v16H40V187.31l58.83-58.82a8,8,0,0,0,1.68-8.84A64,64,0,1,1,160,160Zm32-84a12,12,0,1,1-12-12A12,12,0,0,1,192,76Z"> *@
+            @*                 </path> *@
+            @*             </svg> *@
+            @*         </span> *@
+            @*         <span class="text-gray-300">@item.GroupVaults.Count</span> *@
+            @*     </div> *@
+            @*     <div class="items-center gap-2 hidden md:flex"> *@
+            @*         <span class="text-skin-accent"> *@
+            @*             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-auto" viewBox="0 0 256 256"> *@
+            @*                 <rect width="256" height="256" fill="none"/><circle cx="84" cy="108" r="52" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><path d="M10.23,200a88,88,0,0,1,147.54,0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><path d="M172,160a87.93,87.93,0,0,1,73.77,40" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><path d="M152.69,59.7A52,52,0,1,1,172,160" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/> *@
+            @*             </svg> *@
+            @*         </span> *@
+            @*         <span class="text-gray-300">@item.Members.Count</span> *@
+            @*     </div> *@
+            @* </div> *@
+        </button>
+    @* } *@
+</div>
+
+<div class="@(_open ? "visible" : "invisible") fixed bg-skin-fill_secondary inset-0 z-40 lg:ml-80 h-full">
+    @* @if (_selectedGroup is not null) *@
+    @* { *@
+    @*     <GroupDetail *@
+    @*         IsOpen="_open" *@
+    @*         Group="_selectedGroup" *@
+    @*         Close="() => { _selectedGroup = null; _open = false; }"/> *@
+    @* } *@
+</div>
+
+@code {
+
+    bool _open;
+    //
+    // void OpenSelectedGroup(Group group)
+    // {
+    //     _selectedGroup = group;
+    //     _open = !_open;
+    // }
+    //
+    // List<Group> _groups = new();
+    //
+    // Group? _selectedGroup;
+    //
+    // protected override async Task OnInitializedAsync()
+    // {
+    //     _groups = await GroupService.GetGroupsAsync();
+    //
+    //     await base.OnInitializedAsync();
+    // }
+
+}

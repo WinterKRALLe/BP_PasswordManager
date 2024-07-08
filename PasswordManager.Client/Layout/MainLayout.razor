@@ -1,0 +1,25 @@
+@inherits LayoutComponentBase
+
+<div class="fixed inset-0 -z-10 bg-skin-fill_secondary"></div>
+
+<div @onclick="ToggleSideNav" class="@(_isOpen ? "block lg:hidden" : "hidden") z-30 fixed inset-0 bg-black/75 backdrop-blur-sm transition-all"></div>
+<div class="grid h-full lg:grid-cols-wide-screen">
+    <Sidenav ShowSidenav="_isOpen" Action="ToggleSideNav"/>
+    <main class="border-l border-[#2d3147] text-white flex flex-col overflow-hidden">
+        <Header Action="ToggleSideNav"/>
+        <div class="border-t border-[#2d3147] h-full">
+            @Body
+        </div>
+    </main>
+</div>
+
+@code {
+
+    bool _isOpen;
+
+    void ToggleSideNav()
+    {
+        _isOpen = !_isOpen;
+    }
+
+}

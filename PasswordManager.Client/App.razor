@@ -1,0 +1,64 @@
+﻿@using System.Security.Claims
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+@* <Router AppAssembly="@typeof(App).Assembly"> *@
+@*     <Found Context="routeData"> *@
+@*         <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)"/> *@
+@*         <FocusOnNavigate RouteData="@routeData" Selector="h1"/> *@
+@*     </Found> *@
+@*     <NotFound> *@
+@*         <PageTitle>Not found</PageTitle> *@
+@*         <LayoutView Layout="@typeof(MainLayout)"> *@
+@*             <p role="alert">Sorry, there's nothing at this address.</p> *@
+@*         </LayoutView> *@
+@*     </NotFound> *@
+@* </Router> *@
+
+<CascadingAuthenticationState>
+    <CascadingValue Name="CurrentUser" Value="@_currentUser">
+        <Router AppAssembly="@typeof(App).Assembly">
+            <Found Context="routeData">
+                <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
+                    <NotAuthorized>
+                        <RedirectToLogin/>
+                    </NotAuthorized>
+                </AuthorizeRouteView>
+            </Found>
+            <NotFound>
+                <PageTitle>Not found</PageTitle>
+                <LayoutView Layout="@typeof(MainLayout)">
+                    <p>Sorry, there's nothing at this address.</p>
+                </LayoutView>
+            </NotFound>
+        </Router>
+    </CascadingValue>
+</CascadingAuthenticationState>
+
+
+@code {
+    private ClaimsPrincipal _currentUser = new(new ClaimsIdentity());
+
+    protected override async Task OnInitializedAsync()
+    {
+        await UpdateCurrentUser();
+        AuthenticationStateProvider.AuthenticationStateChanged += OnAuthenticationStateChanged;
+    }
+
+    private async void OnAuthenticationStateChanged(Task<AuthenticationState> task)
+    {
+        await UpdateCurrentUser();
+        StateHasChanged();
+    }
+
+    private async Task UpdateCurrentUser()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        _currentUser = authState.User;
+    }
+
+    public void Dispose()
+    {
+        AuthenticationStateProvider.AuthenticationStateChanged -= OnAuthenticationStateChanged;
+    }
+
+}

@@ -1,0 +1,80 @@
+@page "/Identity/Login"
+@using System.Security.Claims
+
+@attribute [AllowAnonymous]
+
+@inject AuthenticationStateProvider AuthStateProvider
+@inject UserState userState
+@inject NavigationManager NavigationManager
+@inject HttpClient HttpClient
+@inject IJSRuntime JsRuntime
+
+@layout EmptyLayout
+
+<PageTitle>Sign in</PageTitle>
+
+<div class="w-full h-screen flex flex justify-center items-center">
+    <div class="bg-skin-fill backdrop-blur-xl px-6 py-12 rounded-xl md:shadow-[0_5px_75px_-5px_rgba(255,255,255,.2)] w-full md:max-w-md h-screen md:h-auto flex flex-col justify-center">
+        <h1 class="text-2xl font-bold relative before:absolute before:-top-10 before:left-5 before:w-32 before:h-32 before:bg-white/20 before:rounded-full before:blur-2xl before:-z-30">Sign in</h1>
+        <p class="text-skin-muted text-sm mt-2">to your Swift Vault</p>
+        <EditForm class="flex flex-col py-4 gap-8 w-full mt-8" Model="ViewModel" method="post" OnValidSubmit="LoginUser" FormName="login">
+            <DataAnnotationsValidator/>
+            <ValidationSummary/>
+            <div class="flex flex-col gap-2">
+                <label class="font-bold inline-block" for="email">Email</label>
+                <InputText @bind-Value="ViewModel.UserName" class="bg-transparent focus:outline-none border border-solid border-[#454a61] rounded-lg px-4 py-2" id="email" autocomplete="off"/>
+            </div>
+            <div class="flex flex-col gap-2">
+                <label class="font-bold inline-block w-52" for="passwd">Password</label>
+                <InputText @bind-Value="ViewModel.Password" type="password" class="bg-transparent focus:outline-none border border-solid border-[#454a61] rounded-lg px-4 py-2" id="passwd"/>
+            </div>
+            <button type="submit" class="mt-4 py-2 rounded-xl bg-skin-accent hover:bg-skin-button_accent_hover relative before:absolute before:-top-10 before:right-0 before:w-32 before:h-32 before:bg-skin-accent_alpha before:rounded-full before:blur-2xl before:-z-30">
+                Sign in
+            </button>
+        </EditForm>
+        <div class="error-message text-red-500">@_err</div>
+        <div class="error-message text-red-500">@_errr</div>
+        <div class="mt-4 flex gap-2 justify-center">
+            <p>New here?</p>
+            <a href="/Identity/Registration" class="underline hover:no-underline text-skin-accent">Create an account</a>
+        </div>
+    </div>
+</div>
+
+@code {
+    [SupplyParameterFromForm] private LoginViewModel ViewModel { get; set; } = new();
+
+    string _err = "";
+    Task<string> _errr;
+
+    private async Task LoginUser()
+    {
+        _err = string.Empty;
+
+        var response = await HttpClient.PostAsJsonAsync("identity/login", ViewModel); // Předělat na DTO
+
+        if (response.IsSuccessStatusCode)
+        {
+            var token = await response.Content.ReadAsStringAsync();
+            await JsRuntime.InvokeVoidAsync("localStorage.setItem", "jwtToken", token);
+        
+            ((JwtAuthenticationStateProvider)AuthStateProvider).MarkUserAsAuthenticated(token);
+        
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            var username = authState.User.FindFirst(ClaimTypes.Name)?.Value;
+            userState.Username = username ?? "Guest";
+
+            NavigationManager.NavigateTo("/");
+        }
+        else if (response.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            _err = await response.Content.ReadAsStringAsync();
+        }
+        else
+        {
+            // _err = "An unexpected error occurred.";
+            _errr = response.Content.ReadAsStringAsync();
+        }
+    }
+
+}

@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
+using PasswordManager.API.Middleware;
 using PasswordManager.Application;
 using PasswordManager.Infrastructure;
 using PasswordManager.Infrastructure.Database.Context;
@@ -24,6 +25,18 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowBlazorClient",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:5057") // Blazor app URL
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials();
+        });
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -37,10 +50,8 @@ app.UseHttpsRedirection()
     .UseRouting()
     .UseAuthentication()
     .UseAuthorization()
-    .UseEndpoints(endpoints =>
-    {
-        endpoints.MapControllers();
-    })
+    .UseCors("AllowBlazorClient")
+    .UseEndpoints(endpoints => { endpoints.MapControllers(); })
     .UseExceptionHandler(appError =>
     {
         appError.Run(async context =>

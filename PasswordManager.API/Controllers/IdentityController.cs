@@ -33,6 +33,20 @@ public class IdentityController(IUserRepository userRepository, IIdentityService
 
         return Unauthorized("Invalid username or password."); 
     }
+
+    [HttpPost("logout")]
+    public async Task<IActionResult> LogoutAsync([FromBody] string token)
+    {
+        var storedRefreshToken = await userRepository.GetByTokenAsync(token);
+        if (storedRefreshToken == null || storedRefreshToken.Expires < DateTime.UtcNow)
+        {
+            return Unauthorized("Invalid refresh token.");
+        }
+        
+        await userRepository.DeleteAsync(storedRefreshToken);
+        Console.WriteLine($"Token: {storedRefreshToken.Token} Deleted successfully.");
+        return Ok("Token deleted");
+    }
     
     [HttpPost("refresh")]
     public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenDto refreshTokenDto)
