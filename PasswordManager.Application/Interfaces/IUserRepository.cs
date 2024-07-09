@@ -1,6 +1,6 @@
 using PasswordManager.Domain.Entities;
 
-namespace PasswordManager.Domain.Repositories;
+namespace PasswordManager.Application.Interfaces;
 
 public interface IUserRepository
 {

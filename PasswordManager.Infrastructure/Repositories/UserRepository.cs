@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using PasswordManager.Application.Interfaces;
 using PasswordManager.Domain.Entities;
-using PasswordManager.Domain.Repositories;
 using PasswordManager.Infrastructure.Database.Context;
 
 namespace PasswordManager.Infrastructure.Repositories;

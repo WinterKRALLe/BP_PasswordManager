@@ -8,10 +8,9 @@ public static class DI
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
-        // services.AddScoped<IPasswordGeneratorService, PasswordGeneratorService>();
         services.AddScoped<IIdentityService, IdentityService>();
-        // services.AddScoped<IAesEncryption, AesEncryption>();
-        // services.AddScoped<IKeyManager, KeyManager>();
+        services.AddScoped<IAesService, AesService>();
+        services.AddScoped<IKeyService, KeyService>();
         
         return services;
     }

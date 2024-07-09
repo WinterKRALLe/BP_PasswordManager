@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using PasswordManager.Application.DTOs;
 using PasswordManager.Application.Interfaces;
-using PasswordManager.Domain.Repositories;
 
 namespace PasswordManager.API.Controllers;
 

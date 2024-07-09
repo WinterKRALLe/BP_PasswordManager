@@ -7,7 +7,6 @@ using Microsoft.IdentityModel.Tokens;
 using PasswordManager.Application.DTOs;
 using PasswordManager.Application.Interfaces;
 using PasswordManager.Domain.Entities;
-using PasswordManager.Domain.Repositories;
 
 namespace PasswordManager.Application.Services;
 

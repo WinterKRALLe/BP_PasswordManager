@@ -1,10 +1,13 @@
 using System.Security.Claims;
 using PasswordManager.Application.Interfaces;
-using PasswordManager.Domain.Repositories;
 
 namespace PasswordManager.API.Middleware;
 
-public class Authorization(RequestDelegate next, IIdentityService identityService, IUserRepository userRepository, bool allowAnonymous = false)
+public class AuthorizationMiddleware(
+    RequestDelegate next,
+    IIdentityService identityService,
+    IUserRepository userRepository,
+    bool allowAnonymous = false)
 {
     public async Task InvokeAsync(HttpContext context)
     {
