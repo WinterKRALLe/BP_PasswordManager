@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using System.Text.Json;
 using PasswordManager.Application.Interfaces;
 
 namespace PasswordManager.API.Middleware;
@@ -24,12 +25,22 @@ public class AuthorizationMiddleware(
             return;
         }
 
-        var token = authorizationHeader.ToString().Split(' ')[1];
+        var tokenJson = authorizationHeader.ToString().Split(' ')[1];
+
+        // Parse the token JSON
+        var tokenData = JsonSerializer.Deserialize<Dictionary<string, string>>(tokenJson);
+        if (tokenData == null || !tokenData.TryGetValue("accessToken", out var token))
+        {
+            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            await context.Response.WriteAsync("Unauthorized: Invalid token format.");
+            return;
+        }
 
         // Validate the token and create a ClaimsPrincipal
         var claimsPrincipal = await identityService.ValidateTokenAsync(token);
         if (claimsPrincipal == null)
         {
+            Console.WriteLine("Token validation failed.");
             if (allowAnonymous)
             {
                 await next(context);

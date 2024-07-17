@@ -4,6 +4,7 @@
 @inject IJSRuntime JSRuntime
 
 @using System.Security.Claims
+
 @implements IDisposable
 
 <div class="lg:w-auto min-w-80 bg-skin-fill fixed inset-y-0 lg:relative duration-500 @(ShowSidenav ? "translate-x-0" : "-translate-x-full") lg:translate-x-0 left-0 transition-all flex flex-col text-[#8b93a1] py-4 z-40 before:absolute before:bottom-0 before:left-0 before:inline-block before:w-5 before:h-5 before:border-t-4 before:border-r-4 before:rounded-tr-full before:border-[#FE683C] before:m-0.5 after:absolute after:top-0 after:right-0 after:inline-block after:w-5 after:h-5 after:border-b-4 after:border-l-4 after:rounded-bl-full after:border-[#FD5531]">
@@ -40,7 +41,7 @@
     </ul>
     <div class="flex justify-center items-center relative">
         <p class="py-4 text-sm text-gray-200">
-            @username
+            @* USER *@
         </p>
         <button
             @onclick="OpenAccountSettings"
@@ -91,21 +92,6 @@
 </div>
 
 @code {
-    [CascadingParameter(Name = "CurrentUser")]
-    private ClaimsPrincipal CurrentUser { get; set; }
-
-    private string username = "Loading...";
-
-    protected override async Task OnInitializedAsync()
-    {
-        if (CurrentUser == null || CurrentUser.Identity == null || !CurrentUser.Identity.IsAuthenticated)
-        {
-            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
-            CurrentUser = authState.User;
-        }
-
-        username = CurrentUser?.Identity?.Name ?? "Guest";
-    }
 
     [Parameter] public bool ShowSidenav { get; set; }
     [Parameter] public EventCallback Action { get; set; }

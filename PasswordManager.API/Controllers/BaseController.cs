@@ -6,7 +6,7 @@ namespace PasswordManager.API.Controllers;
 public class BaseController : ControllerBase
 {
     [NonAction]
-    public int GetCurrentUserId()
+    protected int GetCurrentUserId()
     {
         var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (userIdClaim == null || !int.TryParse(userIdClaim, out var userId))

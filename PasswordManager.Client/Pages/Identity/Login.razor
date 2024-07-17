@@ -51,7 +51,7 @@
     {
         _err = string.Empty;
 
-        var response = await HttpClient.PostAsJsonAsync("identity/login", ViewModel); // Předělat na DTO
+        var response = await HttpClient.PostAsJsonAsync("Identity/login", ViewModel);
 
         if (response.IsSuccessStatusCode)
         {

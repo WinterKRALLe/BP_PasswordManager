@@ -10,6 +10,7 @@ public static class DI
     {
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IVaultRepository, VaultRepository>();
+        services.AddScoped<IGroupRepository, GroupRepository>();
         
         return services;
     }

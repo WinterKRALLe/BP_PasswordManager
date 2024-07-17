@@ -1,16 +1,19 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace PasswordManager.Client.ViewModels;
 
 public class AddLoginViewModel
 {
-    [Required] public string Title { get; set; } = null!;
+    [JsonPropertyName("Title")] [Required] public string Title { get; set; } = null!;
 
-    [Required] public string UserName { get; set; } = null!;
-
+    [JsonPropertyName("UserName")]
     [Required]
-    [DataType(DataType.Password)]
+    public string UserName { get; set; } = null!;
+
+    [JsonPropertyName("Password")]
+    [Required]
     public string Password { get; set; } = null!;
 
-    public string Websites { get; set; } = null!;
+    [JsonPropertyName("Website")] public string Websites { get; set; } = null!;
 }

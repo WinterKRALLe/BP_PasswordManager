@@ -1,9 +1,7 @@
 @inject AddComponentState<AddLogin> LoginComponentState
 @inject AddComponentState<AddPassword> PasswordComponentState
-@inject IJSRuntime JsRuntime
 @inject HttpClient HttpClient
-@* @inject IVaultService VaultService *@
-@* @using PM.Infrastructure.MRepositories *@
+@using System.Text.Json
 @implements IDisposable 
 
 <div class="z-40 bg-black/75 backdrop-blur-sm fixed inset-0 transition-all duration-300 grid lg:grid-cols-wide-screen @(LoginComponentState.IsComponentOpen ? "visible" : "invisible")">
@@ -26,10 +24,12 @@
                     </button>
                 </div>
             </header>
-            <EditForm Model="@AddLoginViewModel" method="post" OnValidSubmit="@CreateLogin" FormName="AddLogin" id="add-login" class="flex flex-col text-skin-muted gap-2 *:border *:border-skin-base *:flex *:flex-col *:rounded-xl *:px-4 *:py-3 ">
+            <EditForm Model="ViewModel" method="post" OnValidSubmit="CreateLogin" FormName="AddLogin" id="add-login" class="flex flex-col text-skin-muted gap-2 *:border *:border-skin-base *:flex *:flex-col *:rounded-xl *:px-4 *:py-3 ">
+                <DataAnnotationsValidator/>
+                <ValidationSummary/>
                 <fieldset class="focus-within:border-skin-accent">
                     <span class="text-xs">Title</span>
-                    <InputText @bind-Value="AddLoginViewModel.Title" class="font-bold text-xl bg-transparent text-gray-300" placeholder="Untitled"/>
+                    <InputText @bind-Value="ViewModel.Title" class="font-bold text-xl bg-transparent text-gray-300" placeholder="Untitled"/>
                 </fieldset>
                 <fieldset class="gap-4 focus-within:border-skin-accent">
                     <div class="flex items-center gap-4">
@@ -43,7 +43,7 @@
                         </svg>
                         <div class="w-full flex flex-col">
                             <div class="text-xs">Username</div>
-                            <InputText @bind-Value="AddLoginViewModel.UserName" class="bg-transparent text-gray-300" placeholder="Enter email or username"/>
+                            <InputText @bind-Value="ViewModel.UserName" class="bg-transparent text-gray-300" placeholder="Enter email or username"/>
                         </div>
                     </div>
                     <div class="flex gap-4 w-full">
@@ -57,7 +57,7 @@
                         </svg>
                         <div class="grow flex flex-col justify-center">
                             <div class="text-xs">Password</div>
-                            <InputText @bind-Value="AddLoginViewModel.Password" type="password" class="bg-transparent tracking-wide text-gray-300 " placeholder="Enter password"/>
+                            <InputText @bind-Value="ViewModel.Password" type="password" class="bg-transparent tracking-wide text-gray-300 " placeholder="Enter password"/>
                         </div>
                         <button
                             @onclick:preventDefault="true" @onclick="() => { PasswordComponentState.SetComponentOpen(true); }"
@@ -87,7 +87,7 @@
                                 <span class="text-xs">Websites</span>
                                 <div class="flex items-center">
                                     <InputText
-                                        @bind-Value="AddLoginViewModel.Websites"
+                                        @bind-Value="ViewModel.Websites"
                                         class="bg-transparent text-gray-300 flex-1"
                                         placeholder="https://"/>
                                     <button class="h-8 aspect-square grid place-items-center p-1 rounded-full hover:bg-skin-button_muted_hover">
@@ -115,14 +115,15 @@
 </div>
 
 @code {
-    [SupplyParameterFromForm] AddLoginViewModel AddLoginViewModel { get; set; } = new AddLoginViewModel();
+    [SupplyParameterFromForm] private AddLoginViewModel ViewModel { get; set; } = new ();
 
     string _message = "";
 
     async Task CreateLogin()
     {
-        var response = await HttpClient.PostAsJsonAsync("vault/create", AddLoginViewModel);
+        var response = await HttpClient.PostAsJsonAsync("Vaults/new", ViewModel);
         _message = response.IsSuccessStatusCode ? "Login created" : "Error creating";
+        Console.WriteLine(_message);
     }
 
     protected override void OnInitialized()

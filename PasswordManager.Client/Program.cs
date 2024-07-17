@@ -1,3 +1,4 @@
+using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -13,9 +14,19 @@ builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<AuthenticationStateProvider, JwtAuthenticationStateProvider>();
 builder.Services.AddScoped<User>();
 builder.Services.AddSingleton<UserState>();
-
 builder.Services.AddScoped(typeof(AddComponentState<>));
-// builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("http://localhost:5158") });
+
+builder.Services.AddTransient<AuthenticatedHttpClientHandler>();
+
+builder.Services.AddScoped(sp =>
+{
+    var handler = sp.GetRequiredService<AuthenticatedHttpClientHandler>();
+    handler.InnerHandler = new HttpClientHandler();
+    var httpClient = new HttpClient(handler)
+    {
+        BaseAddress = new Uri("http://localhost:5158")
+    };
+    return httpClient;
+});
 
 await builder.Build().RunAsync();
