@@ -52,7 +52,7 @@
         </header>
 
         <div class="shrink gap-2 grow h-full overflow-y-auto flex flex-col">
-            @if (_vaults!.Count == 0)
+            @if (_vaults.Count == 0)
             {
                 <div class="h-full flex flex-col justify-center items-center text-xl lg:text-2xl">
                     You have 0 logins
@@ -60,7 +60,7 @@
             }
             else
             {
-                @foreach (var item in _vaults) @*Where(item => !item.IsDeleted)*@
+                @foreach (var item in _vaults)
                 {
                     <button
                         @onclick="() => ToggleSelection(item)"
@@ -68,11 +68,13 @@
                         <div class="flex gap-3 items-center">
                             <div class="bg-white w-10 aspect-square rounded-xl flex justify-center items-center" id="parentContainer">
                                 <img src=@($"https://{item.Websites}/favicon.ico") class="w-5 aspect-square" onerror="this.src='./images/SwiftVaultLogo.svg'" alt=""/>
-                                @* <img src="./images/SwiftVaultLogo.svg" class="w-5 aspect-square" alt=""/> *@
                             </div>
                             <div class="text-start">
-                                @* <p class="">@item.Websites</p> *@
-                                <p>@item.UserName</p>
+                                @if (!string.IsNullOrWhiteSpace(item.Websites))
+                                {
+                                    <p class="">@item.Websites</p>
+                                }
+                                <p>@item.Title</p>
                             </div>
                         </div>
                     </button>
@@ -89,20 +91,18 @@
                 <img class="w-60 h-auto" src="./images/SwiftVaultLogo.svg" alt="logo"/>
             </div>
         }
-        @* else *@
-        @* { *@
-        @* <VaultDetails *@
-        @*     SelectedVault="_selectedItem" *@
-        @*     Action="() => HandleItemDeleted(_selectedItem!.Id)" *@
-        @*     Close="() => { _selectedItem = null; StateHasChanged(); }" *@
-        @*     /> *@
-        @* } *@
-
+        else
+        {
+            <VaultDetails
+                SelectedVaultId="_selectedItem.Id"
+                Action="() => HandleItemDeleted(_selectedItem!.Id)"
+                Close="() => { _selectedItem = null; StateHasChanged(); }"/>
+        }
     </div>
 </div>
 
 @code {
-    List<VaultViewModel> _vaults = new List<VaultViewModel>();
+    List<VaultViewModel> _vaults = new ();
 
     protected override async Task OnInitializedAsync()
     {
@@ -121,13 +121,13 @@
         }
     }
 
-    // void HandleItemDeleted(Guid itemId)
-    // {
-    //     _selectedItem = null;
-    //     _vaults.RemoveAll(item => item.Id == itemId);
-    //     StateHasChanged();
-    // }
-    //
+    void HandleItemDeleted(int itemId)
+    {
+        _selectedItem = null;
+        _vaults.RemoveAll(item => item.Id == itemId);
+        StateHasChanged();
+    }
+
     void MultipleMoveToTrash()
     {
         _selectedVaults.ForEach(item => item.IsDeleted = true);

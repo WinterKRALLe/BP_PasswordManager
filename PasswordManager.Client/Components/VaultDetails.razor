@@ -1,259 +1,282 @@
+@using System.Text.Json
+@inject IJSRuntime JsRuntime
 
-<div>AHOJ</div>
-@* @inject IJSRuntime JsRuntime *@
+@inject HttpClient HttpClient
+
+@* @inject AddComponentState<ShareWithGroup> ShareWithGroupComponentState *@
 @* @inject AddComponentState<AddGroup> AddGroupComponentState *@
-@* *@
-@* $1$ @inject AddComponentState<ShareWithGroup> ShareWithGroupComponentState #1# *@
-@* $1$ @inject AddComponentState<AddGroup> AddGroupComponentState #1# *@
-@* $1$ @inject AddComponentState<EditVault> EditVaultComponentState #1# *@
-@* $1$ @inject IVaultService VaultService #1# *@
-@* $1$ @inject IAesEncryption AesEncryption  #1# *@
-@* $1$ @inject IKeyManager KeyManager #1# *@
-@* *@
-@* *@
+@* @inject AddComponentState<EditVault> EditVaultComponentState *@
+
 @* @implements IDisposable *@
-@* *@
-@* $1$ <EditVault #1# *@
-@* $1$      Vault="SelectedVault"/> #1# *@
-@* *@
-@* <div class="text-white min-w-screen space-y-2 m-2 lg:m-4"> *@
-@*     <div class="flex justify-between items-center pb-2"> *@
-@*         <span class="text-xl font-bold">@SelectedVault.Title</span> *@
-@*         <div class="flex gap-1 items-center"> *@
-@*             $1$ <button #1# *@
-@*             $1$     @onclick="() => EditVaultComponentState.SetComponentOpen(true)" #1# *@
-@*             $1$     class="flex gap-1 items-center h-9 w-auto px-3 bg-gradient-to-b from-[#FE683C] to-[#FD5531] rounded-full hover:brightness-110"> #1# *@
-@*             $1$     <svg #1# *@
-@*             $1$         class="w-4 h-auto fill-white" #1# *@
-@*             $1$         xmlns="http://www.w3.org/2000/svg" #1# *@
-@*             $1$         viewBox="0 -960 960 960"> #1# *@
-@*             $1$         <path #1# *@
-@*             $1$             d="M200-200h57l391-391-57-57-391 391v57Zm-80 80v-170l528-527q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L290-120H120Zm640-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z"> #1# *@
-@*             $1$         </path> #1# *@
-@*             $1$     </svg> #1# *@
-@*             $1$     <span class="text-xs">Edit</span> #1# *@
-@*             $1$ </button> #1# *@
-@*             <button *@
-@*                 @onclick="ShowShare" *@
-@*                 class="flex justify-center items-center h-9 aspect-square fill-white bg-skin-button_muted rounded-full hover:bg-skin-button_muted_hover"> *@
-@*                 <svg *@
-@*                     class="w-5 h-auto" *@
-@*                     xmlns="http://www.w3.org/2000/svg" *@
-@*                     viewBox="0 0 24 24"> *@
-@*                     <path *@
-@*                         d="M13 11a3 3 0 1 0-3-3a3 3 0 0 0 3 3m0-4a1 1 0 1 1-1 1a1 1 0 0 1 1-1m4.11 3.86a5 5 0 0 0 0-5.72A2.91 2.91 0 0 1 18 5a3 3 0 0 1 0 6a2.91 2.91 0 0 1-.89-.14M13 13c-6 0-6 4-6 4v2h12v-2s0-4-6-4m-4 4c0-.29.32-2 4-2c3.5 0 3.94 1.56 4 2m7 0v2h-3v-2a5.6 5.6 0 0 0-1.8-3.94C24 13.55 24 17 24 17M8 12H5v3H3v-3H0v-2h3V7h2v3h3Z"> *@
-@*                     </path> *@
-@*                 </svg> *@
-@*             </button> *@
-@*             <button *@
-@*                 @onclick="MoveToTrash" *@
-@*                 class="flex justify-center items-center h-9 aspect-square fill-white bg-skin-button_muted rounded-full hover:bg-skin-button_muted_hover"> *@
-@*                 <svg *@
-@*                     class="w-4 h-auto" *@
-@*                     xmlns="http://www.w3.org/2000/svg" *@
-@*                     viewBox="0 0 16 16"> *@
-@*                     <path *@
-@*                         fill-rule="evenodd" *@
-@*                         d="M9 2H7a.5.5 0 0 0-.5.5V3h3v-.5A.5.5 0 0 0 9 2m2 1v-.5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2V3H2.251a.75.75 0 0 0 0 1.5h.312l.317 7.625A3 3 0 0 0 5.878 15h4.245a3 3 0 0 0 2.997-2.875l.318-7.625h.312a.75.75 0 0 0 0-1.5zm.936 1.5H4.064l.315 7.562A1.5 1.5 0 0 0 5.878 13.5h4.245a1.5 1.5 0 0 0 1.498-1.438zm-6.186 2v5a.75.75 0 0 0 1.5 0v-5a.75.75 0 0 0-1.5 0m3.75-.75a.75.75 0 0 1 .75.75v5a.75.75 0 0 1-1.5 0v-5a.75.75 0 0 1 .75-.75" *@
-@*                         clip-rule="evenodd"> *@
-@*                     </path> *@
-@*                 </svg> *@
-@*             </button> *@
-@*             <button *@
-@*                 @onclick="Close" *@
-@*                 class="flex justify-center items-center h-9 aspect-square fill-white bg-skin-button_muted rounded-full hover:bg-skin-button_muted_hover ml-4 md:hidden"> *@
-@*                 <svg class="p-0.5 w-5 aspect-square" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"> *@
-@*                     <rect width="256" height="256" fill="none"/><line x1="200" y1="56" x2="56" y2="200" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><line x1="200" y1="200" x2="56" y2="56" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/> *@
-@*                 </svg> *@
-@*             </button> *@
-@*         </div> *@
-@*     </div> *@
-@*     <div> *@
-@*         <div *@
-@*             @onclick="async () => { await CopyToClipboard(SelectedVault.Username); }" *@
-@*             class="border border-[#2d3147] w-full hover:bg-skin-button_muted cursor-pointer flex items-center gap-4 px-4 py-2 rounded-t-xl"> *@
-@*             <span> *@
-@*                 <svg *@
-@*                     class="w-5 h-auto fill-skin-accent" *@
-@*                     xmlns="http://www.w3.org/2000/svg" *@
-@*                     viewBox="0 0 256 256"> *@
-@*                     <path *@
-@*                         d="M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8c18.84-32.56,52.14-52,89.07-52s70.23,19.44,89.07,52a8,8,0,1,0,13.85-8ZM72,96a56,56,0,1,1,56,56A56.06,56.06,0,0,1,72,96Z"> *@
-@*                     </path> *@
-@*                 </svg> *@
-@*             </span> *@
-@*             <div> *@
-@*                 <div class="text-xs text-gray-500">Username</div> *@
-@*                 <div>@SelectedVault.Username</div> *@
-@*             </div> *@
-@*         </div> *@
-@*         <div *@
-@*             @onclick="async () => { await CopyToClipboard(_decryptedPassword); }" *@
-@*             class="border border-[#2d3147] w-full hover:bg-skin-button_muted cursor-pointer flex items-center gap-4 px-4 py-2 rounded-b-xl border-t-0"> *@
-@*             <span> *@
-@*                 <svg *@
-@*                     class="w-5 h-auto fill-skin-accent" *@
-@*                     xmlns="http://www.w3.org/2000/svg" *@
-@*                     viewBox="0 0 256 256"> *@
-@*                     <path *@
-@*                         d="M160,16A80.07,80.07,0,0,0,83.91,120.78L26.34,178.34A8,8,0,0,0,24,184v40a8,8,0,0,0,8,8H72a8,8,0,0,0,8-8V208H96a8,8,0,0,0,8-8V184h16a8,8,0,0,0,5.66-2.34l9.56-9.57A80,80,0,1,0,160,16Zm0,144a63.7,63.7,0,0,1-23.65-4.51,8,8,0,0,0-8.84,1.68L116.69,168H96a8,8,0,0,0-8,8v16H72a8,8,0,0,0-8,8v16H40V187.31l58.83-58.82a8,8,0,0,0,1.68-8.84A64,64,0,1,1,160,160Zm32-84a12,12,0,1,1-12-12A12,12,0,0,1,192,76Z"> *@
-@*                     </path> *@
-@*                 </svg> *@
-@*             </span> *@
-@*             <div> *@
-@*                 <div class="text-xs text-gray-500">Password</div> *@
-@*                 <div>@(new String('*', _decryptedPassword.Length))</div> *@
-@*             </div> *@
-@*         </div> *@
-@*     </div> *@
-@*     $1$ <div #1# *@
-@*     $1$     class="border border-[#2d3147] rounded-xl w-full flex items-center gap-4 px-4 py-2"> #1# *@
-@*     $1$     <span> #1# *@
-@*     $1$         <svg #1# *@
-@*     $1$             class="w-5 h-auto fill-skin-accent" #1# *@
-@*     $1$             xmlns="http://www.w3.org/2000/svg" #1# *@
-@*     $1$             viewBox="0 0 256 256"> #1# *@
-@*     $1$             <path #1# *@
-@*     $1$                 d="M128,26A102,102,0,1,0,230,128,102.12,102.12,0,0,0,128,26Zm90,102a89.55,89.55,0,0,1-7.46,35.86l-46.69-28.71a13.94,13.94,0,0,0-5.46-2l-22.82-3.07A14.06,14.06,0,0,0,121.06,138h-9.92a2,2,0,0,1-1.8-1.13l-3.8-7.86a13.94,13.94,0,0,0-9.66-7.59l-10.71-2.3L94.4,103a2,2,0,0,1,1.74-1h16.71a13.9,13.9,0,0,0,6.76-1.75l12.25-6.75a14.73,14.73,0,0,0,2.62-1.88l26.91-24.33a13.93,13.93,0,0,0,2.83-17.21L161,44.25A90.16,90.16,0,0,1,218,128ZM144.6,39.54l9.15,16.39a2,2,0,0,1-.41,2.46L126.43,82.72a1.84,1.84,0,0,1-.37.27l-12.25,6.76a2,2,0,0,1-1,.25H96.14A14,14,0,0,0,84,97L73.18,115.91a2,2,0,0,1-.19-.35L61.5,84.89a2,2,0,0,1,0-1.48L72.68,57.06A89.9,89.9,0,0,1,144.6,39.54ZM38,128A89.52,89.52,0,0,1,49.38,84.23a13.85,13.85,0,0,0,.89,4.87l11.49,30.67a13.94,13.94,0,0,0,10.16,8.78l21.44,4.6a2,2,0,0,1,1.38,1.09l3.8,7.86a14.07,14.07,0,0,0,12.6,7.9h4.56l-8.49,19a14,14,0,0,0,2.51,15.2l.1.11,19.68,20.26a2,2,0,0,1,.46,1.7L127.7,218A90.1,90.1,0,0,1,38,128Zm102.08,89.19,1.67-8.6a14.07,14.07,0,0,0-3.47-12.16l-.1-.11L118.5,176.06a2,2,0,0,1-.33-2.14l13.7-30.73A2,2,0,0,1,134,142l22.82,3.08a2,2,0,0,1,.78.27L205,174.55A90.18,90.18,0,0,1,140.08,217.19Z"> #1# *@
-@*     $1$             </path> #1# *@
-@*     $1$         </svg> #1# *@
-@*     $1$     </span> #1# *@
-@*     $1$     <div> #1# *@
-@*     $1$         <div class="text-xs text-skin-muted">Website</div> #1# *@
-@*     $1$         @if (SelectedVault.Websites is not null) #1# *@
-@*     $1$         { #1# *@
-@*     $1$             @foreach (var website in SelectedVault.Websites) #1# *@
-@*     $1$             { #1# *@
-@*     $1$                 <a #1# *@
-@*     $1$                     href="https://@website" #1# *@
-@*     $1$                     class="text-skin-accent hover:underline" #1# *@
-@*     $1$                     target="_blank"> #1# *@
-@*     $1$                     @website #1# *@
-@*     $1$                 </a> #1# *@
-@*     $1$             } #1# *@
-@*     $1$         } #1# *@
-@*     $1$     </div> #1# *@
-@*     $1$ </div> #1# *@
-@* *@
-@*     <div class="border border-[#2d3147] rounded-xl w-full flex flex-col gap-4 px-4 py-2 *:flex *:items-center *:w-full *:gap-4 text-sm text-skin-muted"> *@
-@*         $1$ <div> #1# *@
-@*         $1$     <svg class="w-5 h-auto" fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"> #1# *@
-@*         $1$         <path d="M200-200h57l391-391-57-57-391 391v57Zm-80 80v-170l528-527q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L290-120H120Zm640-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z"/> #1# *@
-@*         $1$     </svg> #1# *@
-@*         $1$     <div class="flex flex-col"> #1# *@
-@*         $1$         <span class="text-gray-300">Last modified</span> #1# *@
-@*         $1$         <span>28.02. at 13:00</span> #1# *@
-@*         $1$     </div> #1# *@
-@*         $1$ </div> #1# *@
-@*         <div> *@
-@*             <svg class="w-5 h-auto" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"> *@
-@*                 <rect width="256" height="256" fill="none"/><polygon points="160 16 144 96 208 120 96 240 112 160 48 136 160 16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/> *@
-@*             </svg> *@
-@*             <div class="flex flex-col"> *@
-@*                 <span class="text-gray-300">Created</span> *@
-@*                 <span>@SelectedVault.CreatedAt.ToString("dd.MM.yyyy 'at' HH:mm")</span> *@
-@*             </div> *@
-@*         </div> *@
-@*     </div> *@
-@* </div> *@
-@* *@
-@* <div class="z-40 fixed inset-0 grid place-items-center bg-black/75 transition-all @(_showShare ? "visible opacity-100" : "invisible opacity-0") p-2"> *@
-@*     <div class="bg-skin-fill_secondary rounded-xl flex flex-col justify-center items-center gap-8 w-full sm:aspect-video relative"> *@
-@*         <button *@
-@*             class="absolute p-2 text-skin-accent aspect-square rounded-full bg-skin-accent_muted flex justify-center items-center top-3 right-3" *@
-@*             @onclick="ShowShare"> *@
-@*             <svg class="p-0.5 w-5 aspect-square" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"> *@
-@*                 <rect width="256" height="256" fill="none"/><line x1="200" y1="56" x2="56" y2="200" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><line x1="200" y1="200" x2="56" y2="56" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/> *@
-@*             </svg> *@
-@*         </button> *@
-@*         <div class="text-2xl font-semibold">Share</div> *@
-@*         <div class="flex flex-col gap-4 *:rounded-full *:px-4 *:py-2 *:w-full w-2/3 "> *@
-@*             <button *@
-@*                 @onclick="() => { ShowShareWith(); ShowShare(); }" *@
-@*                 class="bg-skin-accent"> *@
-@*                 Share this login in group *@
-@*             </button> *@
-@*             <button *@
-@*                 @onclick="() => { AddGroupComponentState.SetComponentOpen(true); ShowShare(); }" *@
-@*                 class="bg-skin-group text-black"> *@
-@*                 Create a new group *@
-@*             </button> *@
-@*         </div> *@
-@*     </div> *@
-@* </div> *@
-@* *@
-@* @if (_showShareWith) *@
-@* { *@
-@*     <ShareWithGroup *@
-@*         Action="() => _showShareWith = false" *@
-@*         VaultToShare="SelectedVault" *@
-@*         ShowComponent="_showShareWith"/> *@
-@* } *@
-@* *@
-@* @code { *@
-@*     [Parameter] public VaultViewModel? SelectedVault { get; set; } *@
-@* } *@
-@* $1$     string _decryptedPassword = ""; #1# *@
-@* *@
-@*     protected override async Task OnParametersSetAsync() *@
-@*     { *@
-@*         var encryptedKey = SelectedVault.EncryptedKey; *@
-@*         var decryptedKey = await KeyManager.DecryptKey(encryptedKey); *@
-@*         _decryptedPassword = await AesEncryption.DecryptAsync(SelectedVault.Password, decryptedKey); *@
-@*     } *@
-@* *@
-@*     bool _showShareWith = false; *@
-@* *@
-@*     void ShowShareWith() *@
-@*     { *@
-@*         _showShareWith = !_showShareWith; *@
-@*     } *@
-@* *@
-@*     void ShowComponentHandler(bool value) *@
-@*     { *@
-@*         _showShareWith = value; *@
-@*     } *@
-@* *@
-@*     bool _showMore = false; *@
-@* *@
-@*     void ShowMore() *@
-@*     { *@
-@*         _showMore = !_showMore; *@
-@*     } *@
-@* *@
-@*     bool _showShare = false; *@
-@* *@
-@*     void ShowShare() *@
-@*     { *@
-@*         _showShare = !_showShare; *@
-@*     } *@
-@* *@
-@*     async Task MoveToTrash() *@
-@*     { *@
-@*         var result = await VaultService.MoveToTrashAsync(SelectedVault!.Id); *@
-@*         await Action.InvokeAsync(result); *@
-@*     } *@
-@* *@
-@*     async Task CopyToClipboard(string text) *@
-@*     { *@
-@*         await JsRuntime.InvokeVoidAsync("navigator.clipboard.writeText", text); *@
-@*     } *@
-@* *@
-@*     [Parameter] public EventCallback Action { get; set; } *@
-@*     [Parameter] public EventCallback Close { get; set; } *@
-@* *@
-@*     protected override void OnInitialized() *@
-@*     { *@
-@*         ShareWithGroupComponentState.OnChange += StateHasChanged; *@
-@*         AddGroupComponentState.OnChange += StateHasChanged; *@
-@*         EditVaultComponentState.OnChange += StateHasChanged; *@
-@*     } *@
-@* *@
-@*     public void Dispose() *@
-@*     { *@
-@*         ShareWithGroupComponentState.OnChange -= StateHasChanged; *@
-@*         AddGroupComponentState.OnChange -= StateHasChanged; *@
-@*         EditVaultComponentState.OnChange -= StateHasChanged; *@
-@*     } *@
-@* *@
-@* } *@
+
+@* <EditVault *@
+@*      Vault="SelectedVault"/> *@
+@if (_vault is not null && string.IsNullOrEmpty(_message))
+{
+    <div class="text-white min-w-screen space-y-2 m-2 lg:m-4">
+        <div class="flex justify-between items-center pb-2">
+            <span class="text-xl font-bold">@_vault.Title</span>
+            <div class="flex gap-1 items-center">
+                @* <button *@
+                @*     @onclick="() => EditVaultComponentState.SetComponentOpen(true)" *@
+                @*     class="flex gap-1 items-center h-9 w-auto px-3 bg-gradient-to-b from-[#FE683C] to-[#FD5531] rounded-full hover:brightness-110"> *@
+                @*     <svg *@
+                @*         class="w-4 h-auto fill-white" *@
+                @*         xmlns="http://www.w3.org/2000/svg" *@
+                @*         viewBox="0 -960 960 960"> *@
+                @*         <path *@
+                @*             d="M200-200h57l391-391-57-57-391 391v57Zm-80 80v-170l528-527q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L290-120H120Zm640-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z"> *@
+                @*         </path> *@
+                @*     </svg> *@
+                @*     <span class="text-xs">Edit</span> *@
+                @* </button> *@
+                <button
+                    @onclick="ShowShare"
+                    class="flex justify-center items-center h-9 aspect-square fill-white bg-skin-button_muted rounded-full hover:bg-skin-button_muted_hover">
+                    <svg
+                        class="w-5 h-auto"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24">
+                        <path
+                            d="M13 11a3 3 0 1 0-3-3a3 3 0 0 0 3 3m0-4a1 1 0 1 1-1 1a1 1 0 0 1 1-1m4.11 3.86a5 5 0 0 0 0-5.72A2.91 2.91 0 0 1 18 5a3 3 0 0 1 0 6a2.91 2.91 0 0 1-.89-.14M13 13c-6 0-6 4-6 4v2h12v-2s0-4-6-4m-4 4c0-.29.32-2 4-2c3.5 0 3.94 1.56 4 2m7 0v2h-3v-2a5.6 5.6 0 0 0-1.8-3.94C24 13.55 24 17 24 17M8 12H5v3H3v-3H0v-2h3V7h2v3h3Z">
+                        </path>
+                    </svg>
+                </button>
+                <button
+                    @onclick="MoveToTrash"
+                    class="flex justify-center items-center h-9 aspect-square fill-white bg-skin-button_muted rounded-full hover:bg-skin-button_muted_hover">
+                    <svg
+                        class="w-4 h-auto"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 16 16">
+                        <path
+                            fill-rule="evenodd"
+                            d="M9 2H7a.5.5 0 0 0-.5.5V3h3v-.5A.5.5 0 0 0 9 2m2 1v-.5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2V3H2.251a.75.75 0 0 0 0 1.5h.312l.317 7.625A3 3 0 0 0 5.878 15h4.245a3 3 0 0 0 2.997-2.875l.318-7.625h.312a.75.75 0 0 0 0-1.5zm.936 1.5H4.064l.315 7.562A1.5 1.5 0 0 0 5.878 13.5h4.245a1.5 1.5 0 0 0 1.498-1.438zm-6.186 2v5a.75.75 0 0 0 1.5 0v-5a.75.75 0 0 0-1.5 0m3.75-.75a.75.75 0 0 1 .75.75v5a.75.75 0 0 1-1.5 0v-5a.75.75 0 0 1 .75-.75"
+                            clip-rule="evenodd">
+                        </path>
+                    </svg>
+                </button>
+                <button
+                    @onclick="Close"
+                    class="flex justify-center items-center h-9 aspect-square fill-white bg-skin-button_muted rounded-full hover:bg-skin-button_muted_hover ml-4 md:hidden">
+                    <svg class="p-0.5 w-5 aspect-square" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+                        <rect width="256" height="256" fill="none"/><line x1="200" y1="56" x2="56" y2="200" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><line x1="200" y1="200" x2="56" y2="56" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <div>
+            <div
+                @onclick="async () => { await CopyToClipboard(_vault.UserName); }"
+                class="border border-[#2d3147] w-full hover:bg-skin-button_muted cursor-pointer flex items-center gap-4 px-4 py-2 rounded-t-xl">
+                <span>
+                    <svg
+                        class="w-5 h-auto fill-skin-accent"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 256 256">
+                        <path
+                            d="M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8c18.84-32.56,52.14-52,89.07-52s70.23,19.44,89.07,52a8,8,0,1,0,13.85-8ZM72,96a56,56,0,1,1,56,56A56.06,56.06,0,0,1,72,96Z">
+                        </path>
+                    </svg>
+                </span>
+                <div>
+                    <div class="text-xs text-gray-500">Username</div>
+                    <div>@_vault.UserName</div>
+                </div>
+            </div>
+            <div
+                @onclick="async () => { await CopyToClipboard(_vault.Password); }"
+                class="border border-[#2d3147] w-full hover:bg-skin-button_muted cursor-pointer flex items-center gap-4 px-4 py-2 rounded-b-xl border-t-0">
+                <span>
+                    <svg
+                        class="w-5 h-auto fill-skin-accent"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 256 256">
+                        <path
+                            d="M160,16A80.07,80.07,0,0,0,83.91,120.78L26.34,178.34A8,8,0,0,0,24,184v40a8,8,0,0,0,8,8H72a8,8,0,0,0,8-8V208H96a8,8,0,0,0,8-8V184h16a8,8,0,0,0,5.66-2.34l9.56-9.57A80,80,0,1,0,160,16Zm0,144a63.7,63.7,0,0,1-23.65-4.51,8,8,0,0,0-8.84,1.68L116.69,168H96a8,8,0,0,0-8,8v16H72a8,8,0,0,0-8,8v16H40V187.31l58.83-58.82a8,8,0,0,0,1.68-8.84A64,64,0,1,1,160,160Zm32-84a12,12,0,1,1-12-12A12,12,0,0,1,192,76Z">
+                        </path>
+                    </svg>
+                </span>
+                <div>
+                    <div class="text-xs text-gray-500">Password</div>
+                    <div>@(new string('*', _vault.Password.Length))</div>
+                </div>
+            </div>
+        </div>
+        <div
+            class="border border-[#2d3147] rounded-xl w-full flex items-center gap-4 px-4 py-2">
+            <span>
+                <svg
+                    class="w-5 h-auto fill-skin-accent"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 256 256">
+                    <path
+                        d="M128,26A102,102,0,1,0,230,128,102.12,102.12,0,0,0,128,26Zm90,102a89.55,89.55,0,0,1-7.46,35.86l-46.69-28.71a13.94,13.94,0,0,0-5.46-2l-22.82-3.07A14.06,14.06,0,0,0,121.06,138h-9.92a2,2,0,0,1-1.8-1.13l-3.8-7.86a13.94,13.94,0,0,0-9.66-7.59l-10.71-2.3L94.4,103a2,2,0,0,1,1.74-1h16.71a13.9,13.9,0,0,0,6.76-1.75l12.25-6.75a14.73,14.73,0,0,0,2.62-1.88l26.91-24.33a13.93,13.93,0,0,0,2.83-17.21L161,44.25A90.16,90.16,0,0,1,218,128ZM144.6,39.54l9.15,16.39a2,2,0,0,1-.41,2.46L126.43,82.72a1.84,1.84,0,0,1-.37.27l-12.25,6.76a2,2,0,0,1-1,.25H96.14A14,14,0,0,0,84,97L73.18,115.91a2,2,0,0,1-.19-.35L61.5,84.89a2,2,0,0,1,0-1.48L72.68,57.06A89.9,89.9,0,0,1,144.6,39.54ZM38,128A89.52,89.52,0,0,1,49.38,84.23a13.85,13.85,0,0,0,.89,4.87l11.49,30.67a13.94,13.94,0,0,0,10.16,8.78l21.44,4.6a2,2,0,0,1,1.38,1.09l3.8,7.86a14.07,14.07,0,0,0,12.6,7.9h4.56l-8.49,19a14,14,0,0,0,2.51,15.2l.1.11,19.68,20.26a2,2,0,0,1,.46,1.7L127.7,218A90.1,90.1,0,0,1,38,128Zm102.08,89.19,1.67-8.6a14.07,14.07,0,0,0-3.47-12.16l-.1-.11L118.5,176.06a2,2,0,0,1-.33-2.14l13.7-30.73A2,2,0,0,1,134,142l22.82,3.08a2,2,0,0,1,.78.27L205,174.55A90.18,90.18,0,0,1,140.08,217.19Z">
+                    </path>
+                </svg>
+            </span>
+            <div>
+                <div class="text-xs text-skin-muted">Website</div>
+                <a
+                    href="https://@_vault.Websites"
+                    class="text-skin-accent hover:underline"
+                    target="_blank">
+                    @_vault.Websites
+                </a>
+            </div>
+        </div>
+
+        <div class="border border-[#2d3147] rounded-xl w-full flex flex-col gap-4 px-4 py-2 *:flex *:items-center *:w-full *:gap-4 text-sm text-skin-muted">
+            @* <div> *@
+            @*     <svg class="w-5 h-auto" fill="currentColor" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"> *@
+            @*         <path d="M200-200h57l391-391-57-57-391 391v57Zm-80 80v-170l528-527q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L290-120H120Zm640-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z"/> *@
+            @*     </svg> *@
+            @*     <div class="flex flex-col"> *@
+            @*         <span class="text-gray-300">Last modified</span> *@
+            @*         <span>28.02. at 13:00</span> *@
+            @*     </div> *@
+            @* </div> *@
+            <div>
+                <svg class="w-5 h-auto" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+                    <rect width="256" height="256" fill="none"/><polygon points="160 16 144 96 208 120 96 240 112 160 48 136 160 16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/>
+                </svg>
+                <div class="flex flex-col">
+                    <span class="text-gray-300">Created</span>
+                    <span>@_vault.CreatedAt.ToString("dd.MM.yyyy 'at' HH:mm")</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="z-40 fixed inset-0 grid place-items-center bg-black/75 transition-all @(_showShare ? "visible opacity-100" : "invisible opacity-0") p-2">
+        <div class="bg-skin-fill_secondary rounded-xl flex flex-col justify-center items-center gap-8 w-full sm:aspect-video relative">
+            <button
+                class="absolute p-2 text-skin-accent aspect-square rounded-full bg-skin-accent_muted flex justify-center items-center top-3 right-3"
+                @onclick="ShowShare">
+                <svg class="p-0.5 w-5 aspect-square" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+                    <rect width="256" height="256" fill="none"/><line x1="200" y1="56" x2="56" y2="200" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><line x1="200" y1="200" x2="56" y2="56" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/>
+                </svg>
+            </button>
+            <div class="text-2xl font-semibold">Share</div>
+            <div class="flex flex-col gap-4 *:rounded-full *:px-4 *:py-2 *:w-full w-2/3 ">
+                <button
+                    @onclick="() => { ShowShareWith(); ShowShare(); }"
+                    class="bg-skin-accent">
+                    Share this login in group
+                </button>
+                <button
+                    @* @onclick="() => { AddGroupComponentState.SetComponentOpen(true); ShowShare(); }" *@
+                    class="bg-skin-group text-black">
+                    Create a new group
+                </button>
+            </div>
+        </div>
+    </div>
+
+    @* @if (_showShareWith) *@
+    @* { *@
+    @*     <ShareWithGroup *@
+    @*         Action="() => _showShareWith = false" *@
+    @*         VaultToShare="SelectedVault" *@
+    @*         ShowComponent="_showShareWith"/> *@
+    @* } *@
+}
+else if (!string.IsNullOrEmpty(_message))
+{
+    <p>@_message</p>
+}
+else
+{
+    <p>Loading...</p>
+}
+
+@code {
+    [Parameter] public int? SelectedVaultId { get; set; }
+
+    VaultViewModel? _vault;
+
+    string _message = "";
+
+    protected override async Task OnParametersSetAsync()
+    {
+        try
+        {
+            var response = await HttpClient.GetAsync($"Vaults/{SelectedVaultId}");
+            response.EnsureSuccessStatusCode();
+
+            var jsonResponse = await response.Content.ReadAsStringAsync();
+            _vault = JsonSerializer.Deserialize<VaultViewModel>(jsonResponse, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching vaults: {ex.Message}");
+            _message = ex.Message;
+        }
+    }
+
+    bool _showShareWith;
+
+    void ShowShareWith()
+    {
+        _showShareWith = !_showShareWith;
+    }
+
+    void ShowComponentHandler(bool value)
+    {
+        _showShareWith = value;
+    }
+
+    bool _showMore;
+
+    void ShowMore()
+    {
+        _showMore = !_showMore;
+    }
+
+    bool _showShare;
+
+    void ShowShare()
+    {
+        _showShare = !_showShare;
+    }
+
+    async Task MoveToTrash()
+    {
+        var requestMessage = new HttpRequestMessage(HttpMethod.Patch, $"Vaults/{SelectedVaultId}/trash");
+        var response = await HttpClient.SendAsync(requestMessage);
+
+        if (response.IsSuccessStatusCode)
+        {
+            var result = await response.Content.ReadAsStringAsync();
+            await Action.InvokeAsync(result);
+        }
+        else
+        {
+            var errorMessage = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"Error: {errorMessage}");
+        }
+    }
+
+    async Task CopyToClipboard(string text)
+    {
+        await JsRuntime.InvokeVoidAsync("navigator.clipboard.writeText", text);
+    }
+
+    [Parameter] public EventCallback Action { get; set; }
+    [Parameter] public EventCallback Close { get; set; }
+
+// protected override void OnInitialized()
+// {
+// ShareWithGroupComponentState.OnChange += StateHasChanged;
+// AddGroupComponentState.OnChange += StateHasChanged;
+// EditVaultComponentState.OnChange += StateHasChanged;
+// }
+//
+// public void Dispose()
+// {
+// ShareWithGroupComponentState.OnChange -= StateHasChanged;
+// AddGroupComponentState.OnChange -= StateHasChanged;
+// EditVaultComponentState.OnChange -= StateHasChanged;
+// }
+
+}

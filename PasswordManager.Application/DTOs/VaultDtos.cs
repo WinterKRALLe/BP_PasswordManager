@@ -8,3 +8,9 @@ public class AddVaultDto
 
     public string? Websites { get; set; }
 }
+
+public class VaultSummaryDto
+{
+    public int Id { get; set; }
+    public string Title { get; set; }
+}

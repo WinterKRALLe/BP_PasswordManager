@@ -2,7 +2,7 @@ namespace PasswordManager.Domain.Entities;
 
 public class Group
 {
-    public Guid Id { get; set; }
+    public int Id { get; set; }
     public string Title { get; set; }
 
     public List<GroupUserRole> Members { get; set; } = new List<GroupUserRole>();

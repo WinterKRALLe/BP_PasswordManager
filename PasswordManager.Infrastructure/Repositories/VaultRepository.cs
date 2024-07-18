@@ -6,20 +6,35 @@ using PasswordManager.Infrastructure.Database.Context;
 
 namespace PasswordManager.Infrastructure.Repositories;
 
-public class VaultRepository(ApplicationDbContext dbContextFactory, IKeyService keyService, IAesService aesService) : IVaultRepository
+public class VaultRepository(ApplicationDbContext dbContextFactory, IKeyService keyService, IAesService aesService)
+    : IVaultRepository
 {
     protected readonly ApplicationDbContext Context = dbContextFactory;
-    
-    public async Task<List<Vault>> GetVaultsAsync(int userId)
+
+    public async Task<List<VaultSummaryDto>> GetVaultSummariesAsync(int userId)
     {
-        return await Context.Vaults.Where(c => c.UserId == userId && c.IsDeleted == false).ToListAsync();
+        return await Context.Vaults
+            .Where(c => c.UserId == userId && c.IsDeleted == false)
+            .Select(v => new VaultSummaryDto { Id = v.Id, Title = v.Title })
+            .ToListAsync();
     }
-    
+
+    public async Task<Vault?> GetByIdAsync(int id)
+    {
+        var vault = await Context.Vaults.FirstOrDefaultAsync(u => u.Id == id);
+        if (vault is null) return new Vault();
+        var encryptedKey = vault.EncryptedKey;
+        var decryptedKey = await keyService.DecryptKey(encryptedKey);
+        var decryptedPassword = await aesService.DecryptAsync(vault.Password, decryptedKey);
+        vault.Password = decryptedPassword;
+        return vault;
+    }
+
     public async Task<List<Vault>> GetDeletedVaultsAsync(int userId)
     {
         return await Context.Vaults.Where(c => c.UserId == userId && c.IsDeleted).ToListAsync();
     }
-    
+
     public async Task<List<Vault>> GetPersonalVaultsAsync(int userId)
     {
         return await Context.Vaults.Where(c => c.UserId == userId).ToListAsync();

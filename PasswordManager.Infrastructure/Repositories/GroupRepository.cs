@@ -22,6 +22,12 @@ public class GroupRepository(ApplicationDbContext dbContextFactory, IUserReposit
             .ToListAsync();
     }
 
+    public async Task<Group?> GetByIdAsync(int id)
+    {
+        return await Context.Groups
+            .FirstOrDefaultAsync(u => u.Id == id);
+    }
+    
     public async Task CreateGroupAndAssignRolesAsync(string groupName, int userId, List<string> shareWith)
     {
         var group = new Group

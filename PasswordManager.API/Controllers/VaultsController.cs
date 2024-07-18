@@ -8,20 +8,52 @@ namespace PasswordManager.API.Controllers;
 
 [Route("[controller]")]
 [ApiController]
+[AuthorizeMiddleware]
 public class VaultsController(IVaultRepository vaultRepository) : BaseController
 {
     [HttpGet]
-    [AuthorizeMiddleware]
-    public async Task<ActionResult<List<Vault>>> GetAllVaults()
+    public async Task<ActionResult<List<VaultSummaryDto>>> GetVaultSummaries()
     {
         var userId = GetCurrentUserId();
-        Console.WriteLine(userId);
-        var vaults = await vaultRepository.GetVaultsAsync(userId);
+        var vaults = await vaultRepository.GetVaultSummariesAsync(userId);
         return Ok(vaults);
     }
 
+    [HttpGet("{id:int}")]
+    public async Task<ActionResult<Vault>> GetVaultById(int id)
+    {
+        try
+        {
+            var vault = await vaultRepository.GetByIdAsync(id);
+            return Ok(vault);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
+    }
+
+    [HttpPatch("{id:int}/trash")]
+    public async Task<ActionResult<string>> MoveToTrashAsync(int id)
+    {
+        try
+        {
+            var success = await vaultRepository.MoveToTrashAsync(id);
+            if (success)
+            {
+                return Ok(new { Message = "Vault moved to trash successfully." });
+            }
+
+            return NotFound(new { Message = "Vault not found." });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500,
+                new { Message = "An error occurred while moving the vault to trash.", Details = ex.Message });
+        }
+    }
+
     [HttpGet("personal")]
-    [AuthorizeMiddleware]
     public async Task<ActionResult<List<Vault>>> GetPersonalVaults()
     {
         var userId = GetCurrentUserId();
@@ -30,7 +62,6 @@ public class VaultsController(IVaultRepository vaultRepository) : BaseController
     }
 
     [HttpGet("trash")]
-    [AuthorizeMiddleware]
     public async Task<ActionResult<List<Vault>>> GetDeletedVaults()
     {
         var userId = GetCurrentUserId();
@@ -39,7 +70,6 @@ public class VaultsController(IVaultRepository vaultRepository) : BaseController
     }
 
     [HttpPost("new")]
-    [AuthorizeMiddleware]
     public async Task<IActionResult> CreateVault([FromBody] AddVaultDto addVault)
     {
         Console.WriteLine(addVault.UserName);

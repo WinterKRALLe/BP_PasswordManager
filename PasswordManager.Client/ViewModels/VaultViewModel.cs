@@ -18,5 +18,11 @@ public class VaultViewModel
     public int UserId { get; set; }
     public User User { get; set; }
 
-    // public List<GroupVault> GroupVaults { get; set; } = new List<GroupVault>();
+    public List<GroupVault> GroupVaults { get; set; } = new List<GroupVault>();
+}
+
+public class VaultSummaries
+{
+    public int Id { get; set; }
+    public string Title { get; set; }
 }

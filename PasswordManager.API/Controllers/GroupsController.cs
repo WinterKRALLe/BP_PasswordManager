@@ -19,6 +19,17 @@ public class GroupsController(IGroupRepository groupRepository): BaseController
         return Ok(vaults);
     }
     
+    [HttpGet("{id}")]
+    public async Task<ActionResult<Group>> GetGroupById(int id)
+    {
+        var group = await groupRepository.GetByIdAsync(id);
+        if (group == null)
+        { 
+            return NotFound();
+        }
+        return Ok(group);
+    }
+    
     [HttpPost("new")]
     [AuthorizeMiddleware]
     public async Task<ActionResult<List<Group>>> CreateGroup(AddGroupDto group)

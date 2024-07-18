@@ -5,7 +5,8 @@ namespace PasswordManager.Application.Interfaces;
 
 public interface IVaultRepository
 {
-    Task<List<Vault>> GetVaultsAsync(int userId);
+    Task<List<VaultSummaryDto>> GetVaultSummariesAsync(int userId);
+    Task<Vault?> GetByIdAsync(int id);
     Task<List<Vault>> GetDeletedVaultsAsync(int userId);
     Task<List<Vault>> GetPersonalVaultsAsync(int userId);
     Task<bool> CreateLoginAsync(AddVaultDto model, int userId);
