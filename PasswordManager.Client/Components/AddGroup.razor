@@ -1,0 +1,141 @@
+@inject AddComponentState<AddGroup> GroupComponentState
+@inject HttpClient HttpClient
+
+@implements IDisposable
+
+<div class="z-40 bg-black/75 backdrop-blur-sm fixed inset-0 transition-all duration-300 grid lg:grid-cols-wide-screen @(GroupComponentState.IsComponentOpen ? "visible" : "invisible")">
+    <div @onclick="() => GroupComponentState.SetComponentOpen(false)" class="hidden lg:block"></div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 h-full">
+        <div @onclick="() => GroupComponentState.SetComponentOpen(false)" class="hidden sm:block"></div>
+        <div class="bg-skin-fill_secondary flex flex-col text-white px-4 pb-3 duration-500 translate-x-0 transition-all @(GroupComponentState.IsComponentOpen ? "translate-x-0" : "translate-x-full")">
+            <header class="h-14 flex justify-between items-center">
+                <button @onclick="() => GroupComponentState.SetComponentOpen(false)" class="p-2 text-skin-group aspect-square rounded-full bg-skin-group_muted flex justify-center items-center">
+                    <svg class="p-0.5 w-5 aspect-square" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+                        <rect width="256" height="256" fill="none"/><line x1="200" y1="56" x2="56" y2="200" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><line x1="200" y1="200" x2="56" y2="56" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/>
+                    </svg>
+                </button>
+                <button type="submit" form="group-form" class="px-3 py-2 text-sm text-black rounded-full bg-skin-group">Add</button>
+            </header>
+            <EditForm Model="@Model" FormName="AddGroup" OnValidSubmit="@CreateGroup" id="group-form" class="h-full flex flex-col text-skin-muted gap-2 *:border *:border-skin-base *:bg-skin-inverted *:flex *:flex-col *:rounded-xl *:px-4 *:py-3 ">
+                <fieldset class="focus-within:border-skin-group">
+                    <span class="text-xs">Group name</span>
+                    <InputText @bind-Value="Model.GroupName" class="font-bold text-xl bg-transparent text-gray-300" placeholder="Untitled"/>
+                </fieldset>
+                @* <fieldset class="focus-within:border-skin-group max-h-56 h-full"> *@
+                @*     <div class="flex gap-4 items-start h-full"> *@
+                @*         <svg *@
+                @*             class="w-5 h-auto mt-2" *@
+                @*             fill="currentColor" *@
+                @*             xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"> *@
+                @*             <rect width="256" height="256" fill="none"/><circle cx="84" cy="108" r="52" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><path d="M10.23,200a88,88,0,0,1,147.54,0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><path d="M172,160a87.93,87.93,0,0,1,73.77,40" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><path d="M152.69,59.7A52,52,0,1,1,172,160" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/> *@
+                @*         </svg> *@
+                @*         <div class="flex flex-col w-full h-full"> *@
+                @*             <span class="text-xs">Share with</span> *@
+                @*             <div class="flex flex-col gap-1 grow overflow-y-auto"> *@
+                @*                 $1$ the displayed email address that will be stored in the db #1# *@
+                @*                 @foreach (var email in _emails) *@
+                @*                 { *@
+                @*                     <div class="flex items-center"> *@
+                @*                         <InputText *@
+                @*                             class="bg-transparent text-gray-300 flex-1" *@
+                @*                             Value="@email"/> *@
+                @*                         <button *@
+                @*                             @onclick="() => _emails.Remove(email)" *@
+                @*                             class="h-8 aspect-square grid place-items-center p-1 rounded-full hover:bg-skin-button_muted_hover"> *@
+                @*                             <svg class="w-5 aspect-square" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"> *@
+                @*                                 <rect width="256" height="256" fill="none"/><line x1="200" y1="56" x2="56" y2="200" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><line x1="200" y1="200" x2="56" y2="56" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/> *@
+                @*                             </svg> *@
+                @*                         </button> *@
+                @*                     </div> *@
+                @*                 } *@
+                @*                 <div class="flex items-center"> *@
+                @*                     <InputText *@
+                @*                         @bind-Value="NewEmail" *@
+                @*                         type="email" *@
+                @*                         class="bg-transparent text-gray-300 flex-1" *@
+                @*                         placeholder="Email"/> *@
+                @*                 </div> *@
+                @*             </div> *@
+                @* *@
+                @*             <div class="w-full mt-2 mb-1 h-px bg-skin-border_base"></div> *@
+                @* *@
+                @*             <button *@
+                @*                 @onclick="AddEmail" *@
+                @*                 class="flex items-center gap-1 text-skin-group rounded-lg px-2 py-1 hover:bg-skin-button_muted_hover w-fit"> *@
+                @*                 <svg class="w-5 h-auto" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"> *@
+                @*                     <rect width="256" height="256" fill="none"/><line x1="40" y1="128" x2="216" y2="128" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><line x1="128" y1="40" x2="128" y2="216" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/> *@
+                @*                 </svg> *@
+                @*                 <span>Add</span> *@
+                @*             </button> *@
+                @*         </div> *@
+                @*     </div> *@
+                @* </fieldset> *@
+                @* <fieldset class="gap-4 focus-within:border-skin-group grow"> *@
+                @*     <div class="flex gap-4 items-start"> *@
+                @*         <svg class="w-5 h-auto p-0.5 mt-2" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"> *@
+                @*             <path d="M144 144v48H304V144c0-44.2-35.8-80-80-80s-80 35.8-80 80zM80 192V144C80 64.5 144.5 0 224 0s144 64.5 144 144v48h16c35.3 0 64 28.7 64 64V448c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V256c0-35.3 28.7-64 64-64H80z"></path> *@
+                @*         </svg> *@
+                @*         <div class="flex flex-col w-full"> *@
+                @*             <div class="flex flex-col gap-1"> *@
+                @*                 <span class="text-xs">Shared vaults (N items)</span> *@
+                @*                 <div class="flex items-center"> *@
+                @*                     @foreach (var item in _vaults) *@
+                @*                     { *@
+                @*                         <div class="flex flex-col gap-2"> *@
+                @*                             <div>@(item.Websites != ""  ? item.Websites : item.Password)</div> *@
+                @*                             <div>@item.Username</div> *@
+                @*                         </div> *@
+                @*                     } *@
+                @*                 </div> *@
+                @*             </div> *@
+                @*         </div> *@
+                @*     </div> *@
+                @* </fieldset> *@
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+@code {
+    [SupplyParameterFromForm] AddGroupViewModel Model { get; set; } = new ();
+
+    List<VaultViewModel> _vaults = new();
+
+    List<string> _emails = new();
+    string NewEmail { get; set; }
+    string GroupName { get; set; }
+
+    private void AddEmail()
+    {
+        if (string.IsNullOrWhiteSpace(NewEmail) || _emails.Contains(NewEmail)) return;
+        _emails.Add(NewEmail);
+        NewEmail = string.Empty;
+    }
+
+    string _message = "";
+
+    async Task CreateGroup()
+    {
+        var response = await HttpClient.PostAsJsonAsync("Groups/new", Model);
+        if (response.IsSuccessStatusCode)
+        {
+            StateHasChanged();
+        }
+        else
+        {
+            var errorMessage = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"Error: {errorMessage}");
+        }
+    }
+    
+    protected override void OnInitialized()
+    {
+        GroupComponentState.OnChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        GroupComponentState.OnChange -= StateHasChanged;
+    }
+
+}

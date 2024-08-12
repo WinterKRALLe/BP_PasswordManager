@@ -1,6 +1,8 @@
 @page "/personal"
 
-@* @inject IVaultService VaultService *@
+@inject HttpClient HttpClient
+
+@using System.Text.Json
 
 <PageTitle>Swift Vault</PageTitle>
 
@@ -8,8 +10,7 @@
     <div class="flex-1 flex flex-col gap-2 m-2 lg:m-4 overflow-hidden">
 
         <header class="flex shrink-0 mb-2">
-            <div class="flex gap-1 transition-all duration-300 ease-in-out">
-                @* class nahoru @(_isMultipleSelectMode ? "visible translate-x-0 opacity-100" : "invisible translate-x-full opacity-0") *@
+            <div class="flex gap-1 transition-all duration-300 ease-in-out @(_isMultipleSelectMode ? "visible translate-x-0 opacity-100" : "invisible translate-x-full opacity-0") ">
                 <button class="flex items-center gap-2 bg-skin-accent_muted text-skin-accent rounded-xl px-3 py-2">
                     <svg
                         fill="currentColor"
@@ -22,25 +23,25 @@
                     </svg>
                     <span class="text-xs font-semibold">Share</span>
                 </button>
-                @* <button *@
-                @*     @onclick="MultipleMoveToTrash" *@
-                @*     class="flex items-center gap-2 bg-skin-accent_muted text-skin-accent rounded-xl px-3 py-2" *@
-                @*     disabled="@(_selectedVaults.Count > 0 ? false : "")"> *@
-                @*     <svg class="w-5 h-auto" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"> *@
-                @*         <path fill="currentColor" fill-rule="evenodd" d="M9 2H7a.5.5 0 0 0-.5.5V3h3v-.5A.5.5 0 0 0 9 2m2 1v-.5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2V3H2.251a.75.75 0 0 0 0 1.5h.312l.317 7.625A3 3 0 0 0 5.878 15h4.245a3 3 0 0 0 2.997-2.875l.318-7.625h.312a.75.75 0 0 0 0-1.5zm.936 1.5H4.064l.315 7.562A1.5 1.5 0 0 0 5.878 13.5h4.245a1.5 1.5 0 0 0 1.498-1.438zm-6.186 2v5a.75.75 0 0 0 1.5 0v-5a.75.75 0 0 0-1.5 0m3.75-.75a.75.75 0 0 1 .75.75v5a.75.75 0 0 1-1.5 0v-5a.75.75 0 0 1 .75-.75" clip-rule="evenodd"></path> *@
-                @*     </svg> *@
-                @*     <span class="text-xs font-semibold">Trash</span> *@
-                @* </button> *@
+                <button
+                    @onclick="MultipleMoveToTrash"
+                    class="flex items-center gap-2 bg-skin-accent_muted text-skin-accent rounded-xl px-3 py-2"
+                    disabled="@(_selectedVaults.Count > 0 ? false : "")">
+                    <svg class="w-5 h-auto" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+                        <path fill="currentColor" fill-rule="evenodd" d="M9 2H7a.5.5 0 0 0-.5.5V3h3v-.5A.5.5 0 0 0 9 2m2 1v-.5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2V3H2.251a.75.75 0 0 0 0 1.5h.312l.317 7.625A3 3 0 0 0 5.878 15h4.245a3 3 0 0 0 2.997-2.875l.318-7.625h.312a.75.75 0 0 0 0-1.5zm.936 1.5H4.064l.315 7.562A1.5 1.5 0 0 0 5.878 13.5h4.245a1.5 1.5 0 0 0 1.498-1.438zm-6.186 2v5a.75.75 0 0 0 1.5 0v-5a.75.75 0 0 0-1.5 0m3.75-.75a.75.75 0 0 1 .75.75v5a.75.75 0 0 1-1.5 0v-5a.75.75 0 0 1 .75-.75" clip-rule="evenodd"></path>
+                    </svg>
+                    <span class="text-xs font-semibold">Trash</span>
+                </button>
             </div>
-            <button>
-                @* @onclick="ToggleMultipleSelectMode" *@
-                @* class="z-10 flex justify-center items-center gap-2 bg-skin-accent_muted text-skin-accent rounded-xl @(_isMultipleSelectMode ? "w-32" : "w-36") ml-auto"> *@
-                @* @if (_isMultipleSelectMode) *@
-                @* { *@
-                @*     <span class="text-xs font-semibold">Cancel</span> *@
-                @* } *@
-                @* else *@
-                @* { *@
+            <button
+                @onclick="ToggleMultipleSelectMode"
+                class="z-10 flex justify-center items-center gap-2 bg-skin-accent_muted text-skin-accent rounded-xl @(_isMultipleSelectMode ? "w-32" : "w-36") ml-auto">
+                @if (_isMultipleSelectMode)
+                {
+                    <span class="text-xs font-semibold">Cancel</span>
+                }
+                else
+                {
                     <svg
                         class="w-5 h-auto"
                         fill="currentColor"
@@ -48,112 +49,125 @@
                         <rect width="256" height="256" fill="none"/><line x1="128" y1="128" x2="216" y2="128" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><line x1="128" y1="64" x2="216" y2="64" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><line x1="128" y1="192" x2="216" y2="192" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><polyline points="40 64 56 80 88 48" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><polyline points="40 128 56 144 88 112" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><polyline points="40 192 56 208 88 176" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/>
                     </svg>
                     <span class="text-xs font-semibold whitespace-nowrap">Multiple select</span>
-                @* } *@
+                }
             </button>
         </header>
 
         <div class="shrink gap-2 grow h-full overflow-y-auto flex flex-col">
-            @* @if (_vaults.Count == 0) *@
-            @* { *@
-            @*     <div class="h-full flex flex-col justify-center items-center text-xl lg:text-2xl"> *@
-            @*         You have 0 logins *@
-            @*     </div> *@
-            @* } *@
-            @* else *@
-            @* { *@
-            @*     @foreach (var item in _vaults.Where(item => !item.IsDeleted)) *@
-            @*     { *@
-            <button>
-                        @* @onclick="() => ToggleSelection(item)" *@
-                        @* class="@(item.IsSelected ? "selected bg-skin-accent_alpha" : "focus:bg-skin-button_muted_hover hover:bg-skin-button_muted") hover:shadow-[0_5px_10px_-2px_rgba(0,0,0,0.3)] py-3 px-4 rounded-xl text-[#FFFFFF]"> *@
+            @if (_vaults.Count == 0)
+            {
+                <div class="h-full flex flex-col justify-center items-center text-xl lg:text-2xl">
+                    You have 0 logins
+                </div>
+            }
+            else
+            {
+                foreach (var item in _vaults.Where(item => !item.IsDeleted))
+                {
+                    <button
+                        @onclick="() => ToggleSelection(item)"
+                        class="@(item.IsSelected ? "selected bg-skin-accent_alpha" : "focus:bg-skin-button_muted_hover hover:bg-skin-button_muted") hover:shadow-[0_5px_10px_-2px_rgba(0,0,0,0.3)] py-3 px-4 rounded-xl text-[#FFFFFF]">
                         <div class="flex gap-3 items-center">
                             <div class="bg-white w-10 aspect-square rounded-xl flex justify-center items-center" id="parentContainer">
-                                @* <img src=@($"https://{item.Websites}/favicon.ico") class="w-5 aspect-square" onerror="this.src='./images/SwiftVaultLogo.svg'" alt=""/> *@
+                                <img src=@($"https://{item.Websites}/favicon.ico") class="w-5 aspect-square" onerror="this.src='./images/SwiftVaultLogo.svg'" alt=""/>
                                 <img src="./images/SwiftVaultLogo.svg" class="w-5 aspect-square" alt=""/>
                             </div>
                             <div class="text-start">
-                                @* <p class="text-gray-300 text-sm">@item.Username</p> *@
+                                <p class="text-gray-300 text-sm">@item.UserName</p>
                             </div>
                         </div>
                     </button>
-            @*     } *@
-            @* } *@
+                }
+            }
         </div>
 
         <div class="h-12 shrink-0 w-full"></div>
     </div>
-    @* <div style="box-shadow: 0 .5rem 1.5rem hsla(0,0%,5%,.8)" class="flex-1 hidden sm:block border-l border-[#2d3147]"> *@
-    @*     @if (_selectedItem is null) *@
-    @*     { *@
-    @*         <div class="h-full flex flex-col justify-center items-center gap-4"> *@
-    @*             <img class="w-60 h-auto" src="./images/SwiftVaultLogo.svg" alt="logo"/> *@
-    @*         </div> *@
-    @*     } *@
-    @*     else *@
-    @*     { *@
-            @* <VaultDetails *@
-            @*     SelectedVault="_selectedItem" *@
-            @*     Action="() => HandleItemDeleted(_selectedItem!.Id)"/> *@
-        @* } *@
+    <div style="box-shadow: 0 .5rem 1.5rem hsla(0,0%,5%,.8)" class="flex-1 hidden sm:block border-l border-[#2d3147]">
+        @if (_selectedItem is null)
+        {
+            <div class="h-full flex flex-col justify-center items-center gap-4">
+                <img class="w-60 h-auto" src="./images/SwiftVaultLogo.svg" alt="logo"/>
+            </div>
+        }
+        else
+        {
+            <VaultDetails
+                SelectedVaultId="_selectedItem.Id"
+                Action="() => HandleItemDeleted(_selectedItem!.Id)"
+                Close="() => { _selectedItem = null; StateHasChanged(); }"/>
+        }
     </div>
-@* </div> *@
+</div>
 
 @code {
-    // List<Vault> _vaults = new List<Vault>();
-    //
-    // protected override async Task OnInitializedAsync()
-    // {
-    //     _vaults = await VaultService.GetPersonalVaultsAsync();
-    //     await base.OnInitializedAsync();
-    // }
-    //
-    // void HandleItemDeleted(Guid itemId)
-    // {
-    //     _selectedItem = null;
-    //     _vaults.RemoveAll(item => item.Id == itemId);
-    //     StateHasChanged();
-    // }
-    //
-    // void MultipleMoveToTrash()
-    // {
-    //     _selectedVaults.ForEach(item => item.IsDeleted = true);
-    //     _isMultipleSelectMode = false;
-    //     _selectedItem = null;
-    // }
-    //
-    // List<Vault> _selectedVaults = new();
-    //
-    // bool _isMultipleSelectMode;
-    //
-    // private void ToggleMultipleSelectMode()
-    // {
-    //     _isMultipleSelectMode = !_isMultipleSelectMode;
-    //
-    //     if (_isMultipleSelectMode) return;
-    //     _selectedVaults.Clear();
-    //     _vaults.ForEach(item => item.IsSelected = false);
-    // }
-    //
-    // private Vault? _selectedItem;
-    //
-    // private void ToggleSelection(Vault item)
-    // {
-    //     if (_isMultipleSelectMode)
-    //     {
-    //         item.IsSelected = !item.IsSelected;
-    //         if (item.IsSelected)
-    //         {
-    //             _selectedVaults.Add(item);
-    //         }
-    //         else
-    //         {
-    //             _selectedVaults.Remove(item);
-    //         }
-    //     }
-    //     else
-    //     {
-    //         _selectedItem = item;
-    //     }
-    // }
+
+    List<VaultViewModel> _vaults = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var response = await HttpClient.GetAsync("Vaults/personal");
+            response.EnsureSuccessStatusCode();
+
+            var jsonResponse = await response.Content.ReadAsStringAsync();
+            _vaults = JsonSerializer.Deserialize<List<VaultViewModel>>(jsonResponse, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching vaults: {ex.Message}");
+            _vaults = new List<VaultViewModel>();
+        }
+    }
+
+    void HandleItemDeleted(int itemId)
+    {
+        _selectedItem = null;
+        _vaults.RemoveAll(item => item.Id == itemId);
+        StateHasChanged();
+    }
+
+    void MultipleMoveToTrash()
+    {
+        _selectedVaults.ForEach(item => item.IsDeleted = true);
+        _isMultipleSelectMode = false;
+        _selectedItem = null;
+    }
+
+    List<VaultViewModel> _selectedVaults = new();
+
+    bool _isMultipleSelectMode;
+
+    private void ToggleMultipleSelectMode()
+    {
+        _isMultipleSelectMode = !_isMultipleSelectMode;
+
+        if (_isMultipleSelectMode) return;
+        _selectedVaults.Clear();
+        _vaults.ForEach(item => item.IsSelected = false);
+    }
+
+    private VaultViewModel? _selectedItem;
+
+    private void ToggleSelection(VaultViewModel item)
+    {
+        if (_isMultipleSelectMode)
+        {
+            item.IsSelected = !item.IsSelected;
+            if (item.IsSelected)
+            {
+                _selectedVaults.Add(item);
+            }
+            else
+            {
+                _selectedVaults.Remove(item);
+            }
+        }
+        else
+        {
+            _selectedItem = item;
+        }
+    }
 
 }

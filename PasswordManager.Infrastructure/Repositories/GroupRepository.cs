@@ -7,27 +7,39 @@ using PasswordManager.Infrastructure.Database.Context;
 
 namespace PasswordManager.Infrastructure.Repositories;
 
-public class GroupRepository(ApplicationDbContext dbContextFactory, IUserRepository userRepository) : IGroupRepository
+public class GroupRepository(
+    ApplicationDbContext dbContextFactory,
+    IUserRepository userRepository,
+    IKeyService keyService,
+    IAesService aesService) : IGroupRepository
 {
     protected readonly ApplicationDbContext Context = dbContextFactory;
 
-    public async Task<List<Group>> GetGroupsAsync(int userId)
+    public async Task<List<GroupDto>> GetGroupsAsync(int userId)
     {
-        return await Context.GroupUserRoles
-            .Where(gur => gur.UserId == userId)
-            .Include(gur => gur.Group)
-            .ThenInclude(g => g.Members)
-            .ThenInclude(m => m.User)
-            .Select(gur => gur.Group)
+        // return await Context.Groups
+        //     .Include(g => g.Members)
+        //     .ThenInclude(gur => gur.User)
+        //     .Where(g => g.Members.Any(m => m.UserId == userId))
+        //     .ToListAsync();
+
+        return await Context.Groups
+            .Where(g => g.Members.Any(m => m.UserId == userId))
+            .Select(g => new GroupDto
+            {
+                Id = g.Id,
+                Title = g.Title
+            })
             .ToListAsync();
     }
 
-    public async Task<Group?> GetByIdAsync(int id)
+    public async Task<GroupDto?> GetByIdAsync(int id)
     {
-        return await Context.Groups
-            .FirstOrDefaultAsync(u => u.Id == id);
+        throw new NotImplementedException();
+        // return await Context.Groups
+        // .FirstOrDefaultAsync(u => u.Id == id);
     }
-    
+
     public async Task CreateGroupAndAssignRolesAsync(string groupName, int userId, List<string> shareWith)
     {
         var group = new Group
@@ -45,30 +57,33 @@ public class GroupRepository(ApplicationDbContext dbContextFactory, IUserReposit
         };
         Context.GroupUserRoles.Add(ownerRole);
 
-        foreach (var username in shareWith)
+        if (shareWith.Count != 0)
         {
-            var member = await Context.Users.SingleOrDefaultAsync(u => u.UserName == username);
-            var memberRole = new GroupUserRole
+            foreach (var username in shareWith)
             {
-                UserId = member!.Id,
-                Role = GroupRoles.Member,
-                Group = group
-            };
-            Context.GroupUserRoles.Add(memberRole);
+                var member = await Context.Users.SingleOrDefaultAsync(u => u.UserName == username);
+                var memberRole = new GroupUserRole
+                {
+                    UserId = member!.Id,
+                    Role = GroupRoles.Member,
+                    Group = group
+                };
+                Context.GroupUserRoles.Add(memberRole);
+            }
         }
 
         await Context.SaveChangesAsync();
     }
 
-    public async Task<bool> ShareToGroupAsync(Vault vaultToShare, List<GroupDto> groupsToShareIn)
+    public async Task<bool> ShareToGroupAsync(int vaultToShare, List<int> groupsToShareIn)
     {
-        foreach (var groupModel in groupsToShareIn)
+        foreach (var groupId in groupsToShareIn)
         {
-            var group = await Context.Groups.FindAsync(groupModel.Id);
+            var group = await Context.Groups.FindAsync(groupId);
             if (group == null) continue;
-            if (group.GroupVaults.All(gv => gv.VaultId != vaultToShare.Id))
+            if (group.GroupVaults.All(gv => gv.VaultId != vaultToShare))
             {
-                group.GroupVaults.Add(new GroupVault { VaultId = vaultToShare.Id });
+                group.GroupVaults.Add(new GroupVault { VaultId = vaultToShare });
             }
         }
 
@@ -77,16 +92,36 @@ public class GroupRepository(ApplicationDbContext dbContextFactory, IUserReposit
 
     public async Task<List<Vault>> GetVaultsAsync(int groupId)
     {
-        return await Context.GroupVaults
-            .Where(gv => gv.GroupId == groupId)
+        var vaults = await Context.GroupVaults.Where(gv => gv.GroupId == groupId)
             .Include(gv => gv.Vault)
             .Select(gv => gv.Vault)
             .ToListAsync();
+
+        if (vaults.Count == 0) return [];
+
+        foreach (var vault in vaults)
+        {
+            var encryptedKey = vault.EncryptedKey;
+            var decryptedKey = await keyService.DecryptKey(encryptedKey);
+            var decryptedPassword = await aesService.DecryptAsync(vault.Password, decryptedKey);
+            vault.Password = decryptedPassword;
+        }
+
+        return vaults;
+    }
+
+    public async Task<List<GroupUserRole>> GetMembersAsync(int groupId)
+    {
+        var members = await Context.GroupUserRoles.Where(gv => gv.GroupId == groupId)
+            .Include(gur => gur.User)
+            .ToListAsync();
+
+        return members;
     }
 
     public async Task<string> AddMember(int groupId, AddUserToGroupDto model)
     {
-        var memberToAdd = await userRepository.GetByUsernameAsync(model.UserName);
+        var memberToAdd = await userRepository.GetByUsernameAsync(model.Email);
         if (memberToAdd == null)
         {
             return "User not found.";

@@ -3,6 +3,7 @@
 @attribute [AllowAnonymous]
 
 @inject NavigationManager NavigationManager
+@inject HttpClient HttpClient
 
 @layout EmptyLayout
 
@@ -16,7 +17,7 @@
             <ValidationSummary/>
             <div class="flex flex-col gap-2">
                 <label class="font-bold inline-block" for="email">Email</label>
-                <InputText @bind-Value="ViewModel.Email" class="bg-transparent focus:outline-none border border-solid border-[#454a61] rounded-lg px-4 py-2" id="email" autocomplete="off"/>
+                <InputText @bind-Value="ViewModel.UserName" class="bg-transparent focus:outline-none border border-solid border-[#454a61] rounded-lg px-4 py-2" id="email" autocomplete="off"/>
             </div>
             <div class="flex flex-col gap-2">
                 <label class="font-bold inline-block w-52" for="passwd">Password</label>
@@ -49,16 +50,17 @@
     private async Task RegisterUser()
     {
         _err = string.Empty;
-        // var result = await IdentityService.RegisterUser(ViewModel);
-        //
-        // if (result)
-        // {
-        //     NavigationManager.NavigateTo("/Identity/Login");
-        // }
-        // else
-        // {
-        //     _err = "Error creating account";
-        // }
+
+        var response = await HttpClient.PostAsJsonAsync("Identity/register", ViewModel);
+
+        if (response.IsSuccessStatusCode)
+        {
+            NavigationManager.NavigateTo("/Identity/Login");
+        }
+        else
+        {
+            _err = await response.Content.ReadAsStringAsync();
+        }
     }
 
 }

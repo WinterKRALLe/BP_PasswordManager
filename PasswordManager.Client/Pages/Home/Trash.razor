@@ -1,31 +1,17 @@
-﻿@page "/"
-
+@page "/trash"
 @using System.Text.Json
 
 @inject HttpClient HttpClient
 
-<PageTitle>Swift Vault</PageTitle>
-
-<div class="md:flex max-h-full h-full min-h-full w-full">
+<div class="flex max-h-full h-full min-h-full w-full">
     <div class="flex-1 flex flex-col gap-2 m-2 lg:m-4 overflow-hidden">
 
         <header class="flex shrink-0 mb-2">
             <div class="@(_isMultipleSelectMode ? "visible translate-x-0 opacity-100" : "invisible translate-x-full opacity-0") flex gap-1 transition-all duration-300 ease-in-out">
-                <button class="flex items-center gap-2 bg-skin-accent_muted text-skin-accent rounded-xl px-3 py-2">
-                    <svg
-                        fill="currentColor"
-                        class="w-5 h-auto"
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24">
-                        <path
-                            d="M13 11a3 3 0 1 0-3-3a3 3 0 0 0 3 3m0-4a1 1 0 1 1-1 1a1 1 0 0 1 1-1m4.11 3.86a5 5 0 0 0 0-5.72A2.91 2.91 0 0 1 18 5a3 3 0 0 1 0 6a2.91 2.91 0 0 1-.89-.14M13 13c-6 0-6 4-6 4v2h12v-2s0-4-6-4m-4 4c0-.29.32-2 4-2c3.5 0 3.94 1.56 4 2m7 0v2h-3v-2a5.6 5.6 0 0 0-1.8-3.94C24 13.55 24 17 24 17M8 12H5v3H3v-3H0v-2h3V7h2v3h3Z">
-                        </path>
-                    </svg>
-                    <span class="text-xs font-semibold">Share</span>
-                </button>
                 <button
                     @onclick="MultipleMoveToTrash"
-                    class="flex items-center gap-2 bg-skin-accent_muted text-skin-accent rounded-xl px-3 py-2">
+                    class="flex items-center gap-2 bg-skin-accent_muted text-skin-accent rounded-xl px-3 py-2"
+                    disabled="@(_selectedVaults.Count > 0 ? false : "")">
                     <svg class="w-5 h-auto" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
                         <path fill="currentColor" fill-rule="evenodd" d="M9 2H7a.5.5 0 0 0-.5.5V3h3v-.5A.5.5 0 0 0 9 2m2 1v-.5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2V3H2.251a.75.75 0 0 0 0 1.5h.312l.317 7.625A3 3 0 0 0 5.878 15h4.245a3 3 0 0 0 2.997-2.875l.318-7.625h.312a.75.75 0 0 0 0-1.5zm.936 1.5H4.064l.315 7.562A1.5 1.5 0 0 0 5.878 13.5h4.245a1.5 1.5 0 0 0 1.498-1.438zm-6.186 2v5a.75.75 0 0 0 1.5 0v-5a.75.75 0 0 0-1.5 0m3.75-.75a.75.75 0 0 1 .75.75v5a.75.75 0 0 1-1.5 0v-5a.75.75 0 0 1 .75-.75" clip-rule="evenodd"></path>
                     </svg>
@@ -56,12 +42,12 @@
             @if (_vaults.Count == 0)
             {
                 <div class="h-full flex flex-col justify-center items-center text-xl lg:text-2xl">
-                    You have 0 logins
+                    Nothing there
                 </div>
             }
             else
             {
-                @foreach (var item in _vaults)
+                foreach (var item in _vaults)
                 {
                     <button
                         @onclick="() => ToggleSelection(item)"
@@ -69,13 +55,10 @@
                         <div class="flex gap-3 items-center">
                             <div class="bg-white w-10 aspect-square rounded-xl flex justify-center items-center" id="parentContainer">
                                 <img src=@($"https://{item.Websites}/favicon.ico") class="w-5 aspect-square" onerror="this.src='./images/SwiftVaultLogo.svg'" alt=""/>
+                                @* <img src="./images/SwiftVaultLogo.svg" class="w-5 aspect-square" alt=""/> *@
                             </div>
                             <div class="text-start">
-                                @if (!string.IsNullOrWhiteSpace(item.Websites))
-                                {
-                                    <p class="">@item.Websites</p>
-                                }
-                                <p>@item.Title</p>
+                                <p>@item.UserName</p>
                             </div>
                         </div>
                     </button>
@@ -88,28 +71,35 @@
     <div style="box-shadow: 0 .5rem 1.5rem hsla(0,0%,5%,.8)" class="@(_selectedItem is not null ? "translate-y-0 z-20 bg-skin-fill_secondary mt-14" : "translate-y-full") md:flex-1 md:block md:border-l md:border-[#2d3147] md:static fixed inset-0 transition-all duration-300 md:mt-0 md:bg-transparent md:translate-y-0  ">
         @if (_selectedItem is null)
         {
-            <div class="h-full flex flex-col justify-center items-center gap-4">
-                <img class="w-60 h-auto" src="./images/SwiftVaultLogo.svg" alt="logo"/>
-            </div>
+        <div class="h-full flex flex-col justify-center items-center gap-4">
+            <img class="w-60 h-auto" src="./images/SwiftVaultLogo.svg" alt="logo"/>
+        </div>
         }
         else
         {
-            <VaultDetails
-                SelectedVaultId="_selectedItem.Id"
-                Action="() => HandleItemDeleted(_selectedItem!.Id)"
-                Close="() => { _selectedItem = null; StateHasChanged(); }"/>
+        <VaultDetails
+            SelectedVaultId="_selectedItem.Id"
+            Action="() => HandleItemDeleted(_selectedItem!.Id)"
+            Close="() => { _selectedItem = null; StateHasChanged(); }"/>
         }
     </div>
 </div>
 
 @code {
-    List<VaultViewModel> _vaults = new ();
+    List<VaultViewModel> _vaults = new();
 
+    void HandleItemDeleted(int itemId)
+    {
+        _selectedItem = null;
+        _vaults.RemoveAll(item => item.Id == itemId);
+        StateHasChanged();
+    }
+    
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            var response = await HttpClient.GetAsync("Vaults");
+            var response = await HttpClient.GetAsync("Vaults/trash");
             response.EnsureSuccessStatusCode();
 
             var jsonResponse = await response.Content.ReadAsStringAsync();
@@ -121,14 +111,7 @@
             _vaults = new List<VaultViewModel>();
         }
     }
-
-    void HandleItemDeleted(int itemId)
-    {
-        _selectedItem = null;
-        _vaults.RemoveAll(item => item.Id == itemId);
-        StateHasChanged();
-    }
-
+    
     void MultipleMoveToTrash()
     {
         _selectedVaults.ForEach(item => item.IsDeleted = true);

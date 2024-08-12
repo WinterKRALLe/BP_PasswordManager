@@ -117,13 +117,17 @@
 @code {
     [SupplyParameterFromForm] private AddLoginViewModel ViewModel { get; set; } = new ();
 
-    string _message = "";
+    // string _message = "";
 
     async Task CreateLogin()
     {
         var response = await HttpClient.PostAsJsonAsync("Vaults/new", ViewModel);
-        _message = response.IsSuccessStatusCode ? "Login created" : "Error creating";
-        Console.WriteLine(_message);
+        if (response.IsSuccessStatusCode)
+        {
+            Dispose();
+        }
+        // _message = response.IsSuccessStatusCode ? "Login created" : "Error creating";
+        // Console.WriteLine(_message);
     }
 
     protected override void OnInitialized()

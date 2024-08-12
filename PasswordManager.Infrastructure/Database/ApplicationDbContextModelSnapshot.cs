@@ -3,20 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PasswordManager.Infrastructure.Database.Context;
 
 #nullable disable
 
-namespace PasswordManager.Infrastructure.Migrations
+namespace PasswordManager.Infrastructure.Database
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240708120639_final")]
-    partial class final
+    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -27,9 +24,11 @@ namespace PasswordManager.Infrastructure.Migrations
 
             modelBuilder.Entity("PasswordManager.Domain.Entities.Group", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -51,9 +50,6 @@ namespace PasswordManager.Infrastructure.Migrations
                     b.Property<int>("GroupId")
                         .HasColumnType("int");
 
-                    b.Property<Guid>("GroupId1")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<int>("Role")
                         .HasColumnType("int");
 
@@ -62,7 +58,7 @@ namespace PasswordManager.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("GroupId1");
+                    b.HasIndex("GroupId");
 
                     b.HasIndex("UserId");
 
@@ -80,15 +76,12 @@ namespace PasswordManager.Infrastructure.Migrations
                     b.Property<int>("GroupId")
                         .HasColumnType("int");
 
-                    b.Property<Guid>("GroupId1")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<int>("VaultId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("GroupId1");
+                    b.HasIndex("GroupId");
 
                     b.HasIndex("VaultId");
 
@@ -186,7 +179,7 @@ namespace PasswordManager.Infrastructure.Migrations
                 {
                     b.HasOne("PasswordManager.Domain.Entities.Group", "Group")
                         .WithMany("Members")
-                        .HasForeignKey("GroupId1")
+                        .HasForeignKey("GroupId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -205,7 +198,7 @@ namespace PasswordManager.Infrastructure.Migrations
                 {
                     b.HasOne("PasswordManager.Domain.Entities.Group", "Group")
                         .WithMany("GroupVaults")
-                        .HasForeignKey("GroupId1")
+                        .HasForeignKey("GroupId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

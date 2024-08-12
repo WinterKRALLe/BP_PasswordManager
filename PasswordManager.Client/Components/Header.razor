@@ -1,5 +1,6 @@
 @inject AddComponentState<AddLogin> LoginComponentState
 @inject AddComponentState<AddPassword> PasswordComponentState
+@inject AddComponentState<AddGroup> GroupComponentState
 
 @implements IDisposable 
  
@@ -103,7 +104,7 @@
             </li>
             <li>
                 <button
-                    @* @onclick="() => GroupComponentState.SetComponentOpen(true)" *@
+                    @onclick="() => GroupComponentState.SetComponentOpen(true)"
                     class="flex gap-2 items-center pl-4 pr-6 py-1 hover:bg-skin-button_muted_hover w-full">
                     <svg class="text-skin-group w-8 aspect-square p-2 rounded-xl bg-skin-group_alpha" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
                         <rect width="256" height="256" fill="none"/><circle cx="84" cy="108" r="52" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><path d="M10.23,200a88,88,0,0,1,147.54,0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><path d="M172,160a87.93,87.93,0,0,1,73.77,40" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><path d="M152.69,59.7A52,52,0,1,1,172,160" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/>
@@ -117,7 +118,7 @@
 
 <AddLogin />
 <AddPassword/>
-@* <AddGroup/> *@
+<AddGroup/>
 
 @code {
     [Parameter] public EventCallback Action { get; set; }
@@ -131,14 +132,14 @@
     
     protected override void OnInitialized()
     {
-        // GroupComponentState.OnChange += StateHasChanged;
+        GroupComponentState.OnChange += StateHasChanged;
         PasswordComponentState.OnChange += StateHasChanged;
         LoginComponentState.OnChange += StateHasChanged;
     }
     
     public void Dispose()
     {
-        // GroupComponentState.OnChange -= StateHasChanged;
+        GroupComponentState.OnChange -= StateHasChanged;
         PasswordComponentState.OnChange -= StateHasChanged;
         LoginComponentState.OnChange -= StateHasChanged;
     }

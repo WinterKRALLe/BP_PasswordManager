@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace PasswordManager.Client.ViewModels;
 
@@ -10,8 +11,10 @@ public class LoginViewModel
 
 public class RegisterViewModel
 {
-    [Required] [EmailAddress] public string Email { get; set; } = null!;
+    [JsonPropertyName("UserName")] 
+    [Required] [EmailAddress] public string UserName { get; set; } = null!;
 
+    [JsonPropertyName("Password")] 
     [Required]
     [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.",
         MinimumLength = 6)]

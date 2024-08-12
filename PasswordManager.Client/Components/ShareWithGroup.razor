@@ -1,0 +1,97 @@
+@using System.Text.Json
+@inject HttpClient HttpClient
+
+<div class="fixed inset-0 bg-black z-40 grid place-items-center @(ShowComponent ? "visible" : "invisible")">
+    <button @onclick="() => Action.InvokeAsync()" class="p-2 text-skin-group aspect-square rounded-full bg-skin-group_muted flex justify-center items-center">
+        <svg class="p-0.5 w-5 aspect-square" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+            <rect width="256" height="256" fill="none"/>
+            <line x1="200" y1="56" x2="56" y2="200" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/>
+            <line x1="200" y1="200" x2="56" y2="56" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/>
+        </svg>
+    </button>
+
+    <div>Share the <span class="text-skin-accent">@VaultToShare.Title</span> vault</div>
+
+    <EditForm Model="Model" OnSubmit="HandleSubmit" class="flex flex-col">
+        @foreach (var item in Model.Groups)
+        {
+            <div class="flex gap-2 p-4">
+                <InputCheckbox id="@item.Id" @bind-Value="item.IsChecked"/>
+                <label for="@item.Id">@item.Title</label>
+            </div>
+        }
+        <button type="submit">Submit</button>
+    </EditForm>
+</div>
+
+@code {
+    [Parameter] public EventCallback Action { get; set; }
+    [Parameter] public bool ShowComponent { get; set; }
+    [Parameter] public VaultViewModel VaultToShare { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var groups = new List<GroupViewModel>();
+        try
+        {
+            var response = await HttpClient.GetAsync("Groups");
+            response.EnsureSuccessStatusCode();
+
+            var jsonResponse = await response.Content.ReadAsStringAsync();
+            groups = JsonSerializer.Deserialize<List<GroupViewModel>>(jsonResponse, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching groups: {ex.Message}");
+            groups = new List<GroupViewModel>();
+        }
+        
+        Model.Groups = groups.Select(g => new GroupViewModel
+        {
+            Id = g.Id,
+            Title = g.Title,
+            IsChecked = false // Default to unchecked
+        }).ToList();
+    }
+
+    private GroupFormModel Model { get; set; } = new()
+    {
+        Groups = new List<GroupViewModel>()
+    };
+
+    public class ShareWithGroupViewModel
+    {
+        public List<int> GroupsId { get; set; } = new();
+        public int VaultId { get; set; }
+    }
+
+    async Task HandleSubmit()
+    {
+        // Collect IDs of checked groups
+        var checkedGroupIds = Model.Groups.Where(g => g.IsChecked).Select(g => g.Id).ToList();
+
+        var shareWithGroupViewModel = new ShareWithGroupViewModel
+        {
+            VaultId = VaultToShare.Id,
+            GroupsId = checkedGroupIds
+        };
+
+        try
+        {
+            var response = await HttpClient.PostAsJsonAsync("Groups/share", shareWithGroupViewModel);
+            response.EnsureSuccessStatusCode();
+            Console.WriteLine("Vault successfully shared.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Failed to share vault: {ex.Message}");
+        }
+    }
+
+    public class GroupFormModel
+    {
+        public List<GroupViewModel> Groups { get; set; } = new();
+    }
+    
+    
+}

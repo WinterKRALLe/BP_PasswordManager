@@ -1,3 +1,5 @@
+@page "/vaults/{id}"
+
 @using System.Text.Json
 @inject IJSRuntime JsRuntime
 
@@ -173,13 +175,13 @@
         </div>
     </div>
 
-    @* @if (_showShareWith) *@
-    @* { *@
-    @*     <ShareWithGroup *@
-    @*         Action="() => _showShareWith = false" *@
-    @*         VaultToShare="SelectedVault" *@
-    @*         ShowComponent="_showShareWith"/> *@
-    @* } *@
+    @if (_showShareWith)
+    {
+        <ShareWithGroup
+            Action="() => _showShareWith = false"
+            VaultToShare="_vault"
+            ShowComponent="_showShareWith"/>
+    }
 }
 else if (!string.IsNullOrEmpty(_message))
 {

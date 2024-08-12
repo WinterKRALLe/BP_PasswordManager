@@ -1,0 +1,171 @@
+@using System.Security.Claims
+@using System.Text.Json
+
+@inject HttpClient HttpClient
+
+@if (Group is not null)
+{
+    <div class="text-white my-5 px-4 flex flex-col gap-16 h-full">
+        <div class="flex item-center justify-between">
+            <div class="font-bold tracking-wider text-xl">
+                @Group.Title
+            </div>
+            <fieldset class="flex gap-4">
+                @* @if (Group.Members.Any(m => m.UserId == CurrentUserId && m.Role == Roles.Owner)) *@
+                @* @if (Group.Members.Any(m => m.Role == GroupRoles.Owner)) *@
+                @* { *@
+                <button
+                    class="p-2 px-4 rounded-full bg-skin-accent flex justify-center items-center gap-2"
+                    @onclick="() => _showAddUser = true">
+                    <svg class="w-5 aspect-square" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+                        <rect width="256" height="256" fill="none"/><line x1="200" y1="136" x2="248" y2="136" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><line x1="224" y1="112" x2="224" y2="160" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><circle cx="108" cy="100" r="60" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><path d="M24,200c20.55-24.45,49.56-40,84-40s63.45,15.55,84,40" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/>
+                    </svg>
+                    <span class="whitespace-nowrap text-sm">Add users</span>
+                </button>
+                @* } *@
+                <button
+                    class="p-2 text-skin-accent aspect-square rounded-full bg-skin-accent_muted flex justify-center items-center"
+                    @onclick="Close">
+                    <svg class="p-0.5 w-5 aspect-square" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+                        <rect width="256" height="256" fill="none"/><line x1="200" y1="56" x2="56" y2="200" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><line x1="200" y1="200" x2="56" y2="56" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/>
+                    </svg>
+                </button>
+            </fieldset>
+        </div>
+        <div class="flex flex-col gap-8 h-full">
+            <fieldset class="flex gap-10 border-b border-skin-base pb-2 text-lg">
+                <button
+                    @onclick='() => _activeTab = "vaults"'
+                    class="@(_activeTab == "vaults" ? "text-skin-accent" : "") cursor-pointer">
+                    Vaults
+                </button>
+                <button
+                    @onclick='() => _activeTab = "members"'
+                    class="@(_activeTab == "members" ? "text-skin-accent" : "") cursor-pointer">
+                    Members
+                </button>
+            </fieldset>
+            <div class="flex flex-col gap-4 grow overflow-y-auto h-1 mb-10">
+                @if (_activeTab == "vaults")
+                {
+                    @if (_vaults.Count == 0)
+                    {
+                        <span>0 logins</span>
+                    }
+                    else
+                    {
+                        foreach (var item in _vaults)
+                        {
+                            <div class="flex flex-col border-b py-2 border-skin-base">
+                                <span>@item.UserName</span>
+                                <span>@(new String('*', item.Password.Length))</span>
+                                <span>@item.Websites</span>
+                            </div>
+                        }
+                    }
+                }
+                else
+                {
+                    foreach (GroupUserRole item in _members)
+                    {
+                        <span>@item.Role</span>
+                        <span>@item.User.UserName</span>
+                    }
+                }
+            </div>
+        </div>
+        <div class="fixed inset-0 @(_showAddUser ? "translate-y-0" : "translate-y-full") bg-black/10 backdrop-blur transition-all duration-300 flex justify-center items-center"
+             @onclick="() => _showAddUser = false" tabindex="1">
+            <div class="w-full max-w-sm aspect-video flex flex-col items-center bg-skin-fill_secondary rounded-xl" @onclick:stopPropagation>
+                <fieldset class="flex justify-between p-4 w-full">
+                    <button
+                        @onclick="() => _showAddUser = false"
+                        class="p-2 text-skin-accent aspect-square rounded-full bg-skin-accent_muted flex justify-center items-center">
+                        <svg class="p-0.5 w-5 aspect-square" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+                            <rect width="256" height="256" fill="none"/><line x1="200" y1="56" x2="56" y2="200" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><line x1="200" y1="200" x2="56" y2="56" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/>
+                        </svg>
+                    </button>
+                    <button type="submit" form="add-user" class="px-3 py-2 text-sm rounded-full bg-skin-accent whitespace-nowrap">
+                        Add User
+                    </button>
+                </fieldset>
+                <EditForm FormName="AddUserForm" Model="@Model" OnValidSubmit="@AddMembers" id="add-user" class="flex flex-col gap-2 w-full px-4">
+                    <ValidationSummary/>
+                    <DataAnnotationsValidator/>
+                    <label for="email">Email</label>
+                    <InputText type="email" class="input" id="email" @bind-Value="Model.Email"/>
+                    <div>
+                        @_message
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <p>Loading ...</p>
+}
+
+@code {
+
+    [Parameter] public EventCallback Close { get; set; }
+    [Parameter] public bool IsOpen { get; set; }
+    [Parameter] public GroupViewModel? Group { get; set; }
+    [CascadingParameter] private Task<AuthenticationState> AuthenticationStateTask { get; set; }
+    private int CurrentUserId { get; set; }
+
+    bool _showAddUser;
+
+    [SupplyParameterFromForm] private AddUserToGroup Model { get; set; } = new();
+
+    List<VaultViewModel> _vaults = new();
+    List<GroupUserRole> _members = new();
+
+    string _activeTab = "vaults";
+
+    protected override async Task OnInitializedAsync()
+    {
+        // var authState = await AuthenticationStateTask;
+        // var value = authState.User.FindFirst(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+        // CurrentUserId = int.Parse(value);
+
+        try
+        {
+            var response = await HttpClient.GetAsync($"Groups/{Group.Id}/vaults");
+            response.EnsureSuccessStatusCode();
+
+            var jsonResponse = await response.Content.ReadAsStringAsync();
+            _vaults = JsonSerializer.Deserialize<List<VaultViewModel>>(jsonResponse, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            var response2 = await HttpClient.GetAsync($"Groups/{Group.Id}/members");
+            response2.EnsureSuccessStatusCode();
+
+            var jsonResponse2 = await response2.Content.ReadAsStringAsync();
+            _members = JsonSerializer.Deserialize<List<GroupUserRole>>(jsonResponse2, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching vaults: {ex.Message}");
+            _message = ex.Message;
+        }
+    }
+
+    string _message = "";
+
+    async Task AddMembers()
+    {
+        var response = await HttpClient.PostAsJsonAsync($"Groups/{Group.Id}/members", Model);
+
+        if (response.IsSuccessStatusCode)
+        {
+            StateHasChanged();
+        }
+        else
+        {
+            var errorMessage = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"Error: {errorMessage}");
+        }
+    }
+
+}

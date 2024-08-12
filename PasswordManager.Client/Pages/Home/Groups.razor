@@ -2,7 +2,6 @@
 @using System.Text.Json
 
 @inject HttpClient HttpClient
-@inject IJSRuntime JsRuntime
 
 <div class="divide-y divide-transparent overflow-y-auto w-full">
     @if (_groups.Count == 0)
@@ -16,7 +15,7 @@
         foreach (var item in _groups)
         {
             <button
-                @* @onclick="() => OpenSelectedGroup(item)" *@
+                @onclick="() => OpenSelectedGroup(item)"
                 class="hover:bg-skin-button_muted hover:shadow-[0_5px_10px_-2px_rgba(0,0,0,0.3)] cursor-pointer focus:bg-skin-button_muted_hover w-full flex justify-between py-3 px-4 text-[#FFFFFF]">
                 <div class="flex gap-3 items-center">
                     <div class="bg-slate-300 w-10 aspect-square rounded-xl flex justify-center items-center" id="parentContainer">
@@ -41,7 +40,7 @@
                                 </path>
                             </svg>
                         </span>
-                        <span class="text-gray-300">@item.GroupVaults.Count</span>
+                        @* <span class="text-gray-300">@item.GroupVaults.Count</span> *@
                     </div>
                     <div class="items-center gap-2 hidden md:flex">
                         <span class="text-skin-accent">
@@ -49,7 +48,7 @@
                                 <rect width="256" height="256" fill="none"/><circle cx="84" cy="108" r="52" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><path d="M10.23,200a88,88,0,0,1,147.54,0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><path d="M172,160a87.93,87.93,0,0,1,73.77,40" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><path d="M152.69,59.7A52,52,0,1,1,172,160" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/>
                             </svg>
                         </span>
-                        <span class="text-gray-300">@item.Members.Count</span>
+                        @* <span class="text-gray-300">@item.Members.Count</span> *@
                     </div>
                 </div>
             </button>
@@ -58,13 +57,13 @@
 </div>
 
 <div class="@(_open ? "visible" : "invisible") fixed bg-skin-fill_secondary inset-0 z-40 lg:ml-80 h-full">
-    @* @if (_selectedGroup is not null) *@
-    @* { *@
-    @*     <GroupDetail *@
-    @*         IsOpen="_open" *@
-    @*         Group="_selectedGroup" *@
-    @*         Close="() => { _selectedGroup = null; _open = false; }"/> *@
-    @* } *@
+    @if (_selectedGroup is not null)
+    {
+        <GroupDetail
+            IsOpen="_open"
+            Group="_selectedGroup"
+            Close="() => { _selectedGroup = null; _open = false; }"/>
+    }
 </div>
 
 @code {
