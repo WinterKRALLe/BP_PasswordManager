@@ -7,22 +7,13 @@ using PasswordManager.Infrastructure.Database.Context;
 
 namespace PasswordManager.Infrastructure.Repositories;
 
-public class GroupRepository(
-    ApplicationDbContext dbContextFactory,
-    IUserRepository userRepository,
-    IKeyService keyService,
-    IAesService aesService) : IGroupRepository
+public class GroupRepository(ApplicationDbContext dbContextFactory,
+    IUserRepository userRepository, IKeyService keyService, IAesService aesService) : IGroupRepository
 {
     protected readonly ApplicationDbContext Context = dbContextFactory;
 
     public async Task<List<GroupDto>> GetGroupsAsync(int userId)
     {
-        // return await Context.Groups
-        //     .Include(g => g.Members)
-        //     .ThenInclude(gur => gur.User)
-        //     .Where(g => g.Members.Any(m => m.UserId == userId))
-        //     .ToListAsync();
-
         return await Context.Groups
             .Where(g => g.Members.Any(m => m.UserId == userId))
             .Select(g => new GroupDto
@@ -33,11 +24,9 @@ public class GroupRepository(
             .ToListAsync();
     }
 
-    public async Task<GroupDto?> GetByIdAsync(int id)
+    public Task<GroupDto?> GetByIdAsync(int id)
     {
         throw new NotImplementedException();
-        // return await Context.Groups
-        // .FirstOrDefaultAsync(u => u.Id == id);
     }
 
     public async Task CreateGroupAndAssignRolesAsync(string groupName, int userId, List<string> shareWith)
@@ -150,3 +139,5 @@ public class GroupRepository(
         return "User has been added to the group.";
     }
 }
+
+

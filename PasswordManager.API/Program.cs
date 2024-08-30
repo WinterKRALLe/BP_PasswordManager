@@ -48,8 +48,9 @@ app.UseHttpsRedirection()
     .UseAuthentication()
     .UseAuthorization()
     .UseCors("AllowBlazorClient")
-    .UseEndpoints(endpoints => { endpoints.MapControllers(); })
-    .UseExceptionHandler(appError =>
+    .UseEndpoints(endpoints => { endpoints.MapControllers(); });
+
+app.UseExceptionHandler(appError =>
     {
         appError.Run(async context =>
         {
