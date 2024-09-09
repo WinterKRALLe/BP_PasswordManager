@@ -109,7 +109,7 @@
     {
         try
         {
-            var response = await HttpClient.GetAsync("Vaults");
+            var response = await HttpClient.GetAsync("api/Vaults");
             response.EnsureSuccessStatusCode();
 
             var jsonResponse = await response.Content.ReadAsStringAsync();

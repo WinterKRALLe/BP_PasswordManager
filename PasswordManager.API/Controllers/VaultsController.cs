@@ -6,7 +6,7 @@ using PasswordManager.Domain.Entities;
 
 namespace PasswordManager.API.Controllers;
 
-[Route("[controller]")]
+[Route("api/[controller]")]
 [ApiController]
 [AuthorizeMiddleware]
 public class VaultsController(IVaultRepository vaultRepository) : BaseController

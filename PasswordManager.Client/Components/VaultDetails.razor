@@ -203,7 +203,7 @@ else
     {
         try
         {
-            var response = await HttpClient.GetAsync($"Vaults/{SelectedVaultId}");
+            var response = await HttpClient.GetAsync($"api/Vaults/{SelectedVaultId}");
             response.EnsureSuccessStatusCode();
 
             var jsonResponse = await response.Content.ReadAsStringAsync();
@@ -244,7 +244,7 @@ else
 
     async Task MoveToTrash()
     {
-        var requestMessage = new HttpRequestMessage(HttpMethod.Patch, $"Vaults/{SelectedVaultId}/trash");
+        var requestMessage = new HttpRequestMessage(HttpMethod.Patch, $"api/Vaults/{SelectedVaultId}/trash");
         var response = await HttpClient.SendAsync(requestMessage);
 
         if (response.IsSuccessStatusCode)

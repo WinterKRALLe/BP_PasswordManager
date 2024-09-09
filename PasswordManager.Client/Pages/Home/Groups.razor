@@ -84,7 +84,7 @@
     {
         try
         {
-            var response = await HttpClient.GetAsync("Groups");
+            var response = await HttpClient.GetAsync("api/Groups");
             response.EnsureSuccessStatusCode();
 
             var jsonResponse = await response.Content.ReadAsStringAsync();

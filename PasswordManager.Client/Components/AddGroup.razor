@@ -116,7 +116,7 @@
 
     async Task CreateGroup()
     {
-        var response = await HttpClient.PostAsJsonAsync("Groups/new", Model);
+        var response = await HttpClient.PostAsJsonAsync("api/Groups/new", Model);
         if (response.IsSuccessStatusCode)
         {
             StateHasChanged();

@@ -51,7 +51,7 @@
     {
         _err = string.Empty;
 
-        var response = await HttpClient.PostAsJsonAsync("Identity/register", ViewModel);
+        var response = await HttpClient.PostAsJsonAsync("api/Identity/register", ViewModel);
 
         if (response.IsSuccessStatusCode)
         {

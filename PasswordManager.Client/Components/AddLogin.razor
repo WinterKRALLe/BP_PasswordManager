@@ -134,7 +134,7 @@
 
     async Task CreateLogin()
     {
-        var response = await HttpClient.PostAsJsonAsync("Vaults/new", ViewModel);
+        var response = await HttpClient.PostAsJsonAsync("api/Vaults/new", ViewModel);
         if (response.IsSuccessStatusCode)
         {
             Dispose();

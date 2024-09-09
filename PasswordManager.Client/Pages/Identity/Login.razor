@@ -51,7 +51,7 @@
     {
         _err = string.Empty;
 
-        var response = await HttpClient.PostAsJsonAsync("Identity/login", ViewModel);
+        var response = await HttpClient.PostAsJsonAsync("api/Identity/login", ViewModel);
 
         if (response.IsSuccessStatusCode)
         {

@@ -34,7 +34,7 @@
         var groups = new List<GroupViewModel>();
         try
         {
-            var response = await HttpClient.GetAsync("Groups");
+            var response = await HttpClient.GetAsync("api/Groups");
             response.EnsureSuccessStatusCode();
 
             var jsonResponse = await response.Content.ReadAsStringAsync();
@@ -78,7 +78,7 @@
 
         try
         {
-            var response = await HttpClient.PostAsJsonAsync("Groups/share", shareWithGroupViewModel);
+            var response = await HttpClient.PostAsJsonAsync("api/Groups/share", shareWithGroupViewModel);
             response.EnsureSuccessStatusCode();
             Console.WriteLine("Vault successfully shared.");
         }

@@ -4,7 +4,7 @@ using PasswordManager.Application.Interfaces;
 
 namespace PasswordManager.API.Controllers;
 
-[Route("[controller]")]
+[Route("api/[controller]")]
 [ApiController]
 public class IdentityController(IUserRepository userRepository, IIdentityService identityService) : ControllerBase
 {

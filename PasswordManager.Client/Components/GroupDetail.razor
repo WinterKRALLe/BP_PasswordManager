@@ -132,13 +132,13 @@ else
 
         try
         {
-            var response = await HttpClient.GetAsync($"Groups/{Group.Id}/vaults");
+            var response = await HttpClient.GetAsync($"api/Groups/{Group.Id}/vaults");
             response.EnsureSuccessStatusCode();
 
             var jsonResponse = await response.Content.ReadAsStringAsync();
             _vaults = JsonSerializer.Deserialize<List<VaultViewModel>>(jsonResponse, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
-            var response2 = await HttpClient.GetAsync($"Groups/{Group.Id}/members");
+            var response2 = await HttpClient.GetAsync($"api/Groups/{Group.Id}/members");
             response2.EnsureSuccessStatusCode();
 
             var jsonResponse2 = await response2.Content.ReadAsStringAsync();
@@ -155,7 +155,7 @@ else
 
     async Task AddMembers()
     {
-        var response = await HttpClient.PostAsJsonAsync($"Groups/{Group.Id}/members", Model);
+        var response = await HttpClient.PostAsJsonAsync($"api/Groups/{Group.Id}/members", Model);
 
         if (response.IsSuccessStatusCode)
         {
